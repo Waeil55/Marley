@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mixed Alphabet & Words</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #fffaf0;
+            touch-action: manipulation;
+        }
+        .kids-font { font-family: 'Fredoka One', cursive; }
+        .btn-bounce:active { transform: scale(0.9); }
+        .listen-pulse { animation: pulse-orange 2s infinite; }
+        @keyframes pulse-orange {
+            0% { box-shadow: 0 0 0 0 rgba(251, 146, 60, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(251, 146, 60, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(251, 146, 60, 0); }
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4 overflow-hidden select-none">
+
+    <div class="fixed top-4 w-full max-w-md px-6 flex justify-between items-center z-10">
+        <div class="bg-white rounded-full px-4 py-2 shadow-md border-2 border-pink-400">
+            <span class="text-xl font-bold text-pink-600" id="progressText">1 / 68</span>
+        </div>
+        <div class="flex gap-2">
+            <div class="bg-white rounded-full px-4 py-2 shadow-md border-2 border-yellow-400">
+                <span class="text-xl font-bold text-yellow-600">⭐ <span id="starCount">0</span></span>
+            </div>
+        </div>
+    </div>
+
+    <main class="w-full max-w-lg bg-white rounded-3xl shadow-2xl p-8 border-b-8 border-gray-200 relative">
+        <div id="categoryBadge" class="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-500 text-white px-6 py-1 rounded-full text-lg font-bold shadow-lg">
+            Learning Time
+        </div>
+
+        <div id="wordCard" class="flex flex-col items-center justify-center min-h-[250px] mb-8">
+            <h1 id="mainWord" class="kids-font text-8xl md:text-9xl text-blue-600 tracking-wide mb-4 text-center">A</h1>
+            <p id="feedbackText" class="text-xl font-bold text-gray-400 h-8 text-center">Tap Listen to hear the sound!</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-8">
+            <button onclick="listenToContent()" class="btn-bounce flex flex-col items-center justify-center bg-orange-400 hover:bg-orange-500 text-white rounded-2xl py-6 shadow-lg border-b-4 border-orange-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                </svg>
+                <span class="text-xl font-bold uppercase">Listen</span>
+            </button>
+
+            <button id="speakBtn" onclick="startRecognition()" class="btn-bounce flex flex-col items-center justify-center bg-green-400 hover:bg-green-500 text-white rounded-2xl py-6 shadow-lg border-b-4 border-green-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+                <span class="text-xl font-bold uppercase">Say it</span>
+            </button>
+        </div>
+
+        <div class="flex items-center justify-between gap-4">
+            <button onclick="prevItem()" class="btn-bounce bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-full p-4 flex-1 font-bold text-xl border-b-4 border-gray-400">
+                BACK
+            </button>
+            <button onclick="nextItem()" class="btn-bounce bg-indigo-500 hover:bg-indigo-600 text-white rounded-full p-4 flex-[2] font-bold text-xl shadow-lg border-b-4 border-indigo-700">
+                NEXT
+            </button>
+        </div>
+    </main>
+
+    <div id="modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl scale-0 transition-transform duration-300" id="modalContent">
+            <div class="text-6xl mb-4">✨</div>
+            <h2 class="kids-font text-3xl text-green-600 mb-2">Well Done!</h2>
+            <p id="modalMsg" class="text-xl text-gray-600 mb-6">You said it!</p>
+            <button onclick="closeModal()" class="w-full bg-green-500 hover:bg-green-600 text-white rounded-2xl py-4 font-bold text-xl shadow-lg border-b-4 border-green-700">
+                NEXT ONE
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let content = [
+            { text: "A", type: "letter" }, { text: "a", type: "letter" },
+            { text: "B", type: "letter" }, { text: "b", type: "letter" },
+            { text: "C", type: "letter" }, { text: "c", type: "letter" },
+            { text: "D", type: "letter" }, { text: "d", type: "letter" },
+            { text: "E", type: "letter" }, { text: "e", type: "letter" },
+            { text: "F", type: "letter" }, { text: "f", type: "letter" },
+            { text: "G", type: "letter" }, { text: "g", type: "letter" },
+            { text: "H", type: "letter" }, { text: "h", type: "letter" },
+            { text: "I", type: "letter" }, { text: "i", type: "letter" },
+            { text: "J", type: "letter" }, { text: "j", type: "letter" },
+            { text: "K", type: "letter" }, { text: "k", type: "letter" },
+            { text: "L", type: "letter" }, { text: "l", type: "letter" },
+            { text: "M", type: "letter" }, { text: "m", type: "letter" },
+            { text: "N", type: "letter" }, { text: "n", type: "letter" },
+            { text: "O", type: "letter" }, { text: "o", type: "letter" },
+            { text: "P", type: "letter" }, { text: "p", type: "letter" },
+            { text: "Q", type: "letter" }, { text: "q", type: "letter" },
+            { text: "R", type: "letter" }, { text: "r", type: "letter" },
+            { text: "S", type: "letter" }, { text: "s", type: "letter" },
+            { text: "T", type: "letter" }, { text: "t", type: "letter" },
+            { text: "U", type: "letter" }, { text: "u", type: "letter" },
+            { text: "V", type: "letter" }, { text: "v", type: "letter" },
+            { text: "W", type: "letter" }, { text: "w", type: "letter" },
+            { text: "X", type: "letter" }, { text: "x", type: "letter" },
+            { text: "Y", type: "letter" }, { text: "y", type: "letter" },
+            { text: "Z", type: "letter" }, { text: "z", type: "letter" },
+            { text: "hi", type: "word" }, { text: "he", type: "word" },
+            { text: "so", type: "word" }, { text: "me", type: "word" },
+            { text: "to", type: "word" }, { text: "up", type: "word" },
+            { text: "in", type: "word" }, { text: "at", type: "word" },
+            { text: "go", type: "word" }, { text: "is", type: "word" },
+            { text: "it", type: "word" }, { text: "my", type: "word" },
+            { text: "no", type: "word" }, { text: "on", type: "word" },
+            { text: "we", type: "word" }, { text: "do", type: "word" }
+        ];
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        content = shuffle(content);
+
+        let currentIndex = 0;
+        let stars = 0;
+        const mainWordEl = document.getElementById('mainWord');
+        const feedbackEl = document.getElementById('feedbackText');
+        const progressEl = document.getElementById('progressText');
+        const starEl = document.getElementById('starCount');
+        const categoryBadge = document.getElementById('categoryBadge');
+        const speakBtn = document.getElementById('speakBtn');
+
+        const synth = window.speechSynthesis;
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+        let isSuccessDetected = false;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.continuous = false;
+            recognition.interimResults = true; // Hear results as they come in for speed
+
+            recognition.onresult = (event) => {
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    const transcript = event.results[i][0].transcript.toLowerCase().trim().replace(/[.,]/g, "");
+                    const target = content[currentIndex].text.toLowerCase();
+                    
+                    if (transcript === target || transcript.includes(target)) {
+                        isSuccessDetected = true;
+                        recognition.stop(); // Stop mic ASAP on match
+                        handleSuccess();
+                        break;
+                    }
+                }
+            };
+
+            recognition.onerror = () => stopRecognitionUI();
+            recognition.onend = () => {
+                if (!isSuccessDetected && feedbackEl.textContent === "Listening...") {
+                    handleFailure("nothing");
+                }
+                stopRecognitionUI();
+            };
+        }
+
+        function updateDisplay() {
+            const item = content[currentIndex];
+            mainWordEl.textContent = item.text;
+            categoryBadge.textContent = item.type === 'letter' ? 'Letter' : 'Word';
+            progressEl.textContent = `${currentIndex + 1} / ${content.length}`;
+            feedbackEl.textContent = "Tap Listen to hear the sound!";
+            feedbackEl.className = "text-xl font-bold text-gray-400 h-8 text-center";
+
+            const colors = ['text-blue-600', 'text-pink-600', 'text-green-600', 'text-orange-600', 'text-purple-600'];
+            mainWordEl.className = `kids-font text-8xl md:text-9xl tracking-wide mb-4 text-center ${colors[currentIndex % colors.length]}`;
+        }
+
+        function listenToContent() {
+            if (synth.speaking) synth.cancel();
+            const textToSay = content[currentIndex].text.toLowerCase();
+            const utter = new SpeechSynthesisUtterance(textToSay);
+            utter.rate = 0.7;
+            utter.pitch = 1.1;
+            synth.speak(utter);
+            mainWordEl.classList.add('scale-110');
+            setTimeout(() => mainWordEl.classList.remove('scale-110'), 200);
+        }
+
+        function startRecognition() {
+            if (!recognition) {
+                feedbackEl.textContent = "Voice not supported here.";
+                return;
+            }
+            isSuccessDetected = false;
+            feedbackEl.textContent = "Listening...";
+            feedbackEl.className = "text-xl font-bold text-green-500 h-8 animate-pulse text-center";
+            speakBtn.classList.add('listen-pulse');
+            recognition.start();
+        }
+
+        function stopRecognitionUI() {
+            speakBtn.classList.remove('listen-pulse');
+        }
+
+        function handleSuccess() {
+            stars++;
+            starEl.textContent = stars;
+            document.getElementById('modalMsg').textContent = `Correct! It is "${content[currentIndex].text}"`;
+            openModal();
+            const utter = new SpeechSynthesisUtterance("Great job!");
+            utter.pitch = 1.4;
+            synth.speak(utter);
+        }
+
+        function handleFailure(heard) {
+            feedbackEl.textContent = `Try again!`;
+            feedbackEl.className = "text-xl font-bold text-orange-500 h-8 text-center";
+        }
+
+        function nextItem() {
+            if (currentIndex < content.length - 1) {
+                currentIndex++;
+                updateDisplay();
+            } else {
+                currentIndex = 0;
+                content = shuffle(content);
+                updateDisplay();
+            }
+        }
+
+        function prevItem() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateDisplay();
+            }
+        }
+
+        function openModal() {
+            const modal = document.getElementById('modal');
+            const contentMod = document.getElementById('modalContent');
+            modal.classList.replace('hidden', 'flex');
+            setTimeout(() => contentMod.classList.add('scale-100'), 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            const contentMod = document.getElementById('modalContent');
+            contentMod.classList.remove('scale-100');
+            setTimeout(() => {
+                modal.classList.replace('flex', 'hidden');
+                nextItem();
+            }, 300);
+        }
+
+        window.onload = updateDisplay;
+    </script>
+</body>
+</html>
+
