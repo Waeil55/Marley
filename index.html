@@ -2,268 +2,367 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mixed Alphabet & Words</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kids Fun Alpha-Learn</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-gradient: linear-gradient(180deg, #e0f2fe 0%, #f0f9ff 100%);
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --accent: #6366f1;
+        }
+
+        .dark-mode {
+            --bg-gradient: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%);
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --accent: #818cf8;
+        }
+
+        .sunset-mode {
+            --bg-gradient: linear-gradient(180deg, #ffedd5 0%, #fef2f2 100%);
+            --card-bg: #fffaf5;
+            --text-main: #431407;
+            --accent: #f97316;
+        }
+
         body {
             font-family: 'Quicksand', sans-serif;
-            background-color: #fffaf0;
+            background: var(--bg-gradient);
+            color: var(--text-main);
             touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 0.5s ease;
+            height: 100dvh;
         }
-        .kids-font { font-family: 'Fredoka One', cursive; }
-        .btn-bounce:active { transform: scale(0.9); }
-        .listen-pulse { animation: pulse-orange 2s infinite; }
-        @keyframes pulse-orange {
-            0% { box-shadow: 0 0 0 0 rgba(251, 146, 60, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(251, 146, 60, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(251, 146, 60, 0); }
+
+        .kids-font { font-family: 'Fredoka', sans-serif; }
+        
+        .btn-squish {
+            transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .btn-squish:active {
+            transform: scale(0.9) translateY(4px);
+        }
+
+        @keyframes bubble {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.05); }
+        }
+        .bubble-animate {
+            animation: bubble 3s ease-in-out infinite;
+        }
+
+        .listen-pulse {
+            animation: pulse-ring 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(34, 197, 94, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(12px);
+            border: 3px solid rgba(255, 255, 255, 0.4);
+            border-radius: 2.5rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        .dark-mode .glass-panel {
+            background: rgba(30, 41, 59, 0.6);
+            border: 3px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-toy {
+            background: var(--card-bg);
+            border-radius: 3rem;
+            box-shadow: 0 20px 0px rgba(0,0,0,0.05), 0 30px 60px rgba(0,0,0,0.1);
+            border-bottom: 12px solid #e2e8f0;
+            transition: transform 0.3s ease;
+        }
+
+        .dark-mode .card-toy { border-bottom-color: #0f172a; }
+
+        .active-theme {
+            transform: scale(1.3);
+            box-shadow: 0 0 20px var(--accent);
+            border: 3px solid white;
+            z-index: 10;
+        }
+
+        .control-label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            opacity: 0.7;
+            margin-bottom: 4px;
         }
     </style>
 </head>
-<body class="flex flex-col items-center justify-center min-h-screen p-4 overflow-hidden select-none">
+<body class="flex flex-col items-center p-4 overflow-hidden select-none">
 
-    <div class="fixed top-4 w-full max-w-md px-6 flex justify-between items-center z-10">
-        <div class="bg-white rounded-full px-4 py-2 shadow-md border-2 border-pink-400">
-            <span class="text-xl font-bold text-pink-600" id="progressText">1 / 68</span>
+    <!-- Top Score Bar -->
+    <header class="w-full max-w-md flex justify-between items-center mb-4">
+        <div class="glass-panel px-4 py-2 flex items-center gap-2 shadow-sm">
+            <span class="text-xl">📊</span>
+            <span class="kids-font font-bold text-indigo-500" id="progressText">1/100</span>
         </div>
-        <div class="flex gap-2">
-            <div class="bg-white rounded-full px-4 py-2 shadow-md border-2 border-yellow-400">
-                <span class="text-xl font-bold text-yellow-600">⭐ <span id="starCount">0</span></span>
+        <div class="glass-panel px-4 py-2 flex items-center gap-2 shadow-sm">
+            <span class="text-2xl">⭐</span>
+            <span class="kids-font font-bold text-yellow-500 text-xl" id="starCount">0</span>
+        </div>
+    </header>
+
+    <!-- Kid-Friendly Smart Dashboard -->
+    <section class="w-full max-w-md glass-panel p-4 mb-6 grid grid-cols-3 gap-2">
+        <!-- Magic Themes -->
+        <div class="flex flex-col items-center border-r border-white/30">
+            <div class="flex items-center gap-1 mb-1">
+                <span class="text-xs">✨</span>
+                <span class="control-label">Magic</span>
+            </div>
+            <div class="flex gap-2 py-1">
+                <button onclick="setTheme('day', this)" class="theme-btn active-theme w-8 h-8 bg-white rounded-full shadow-lg border-2 border-blue-100"></button>
+                <button onclick="setTheme('dark', this)" class="theme-btn w-8 h-8 bg-indigo-950 rounded-full shadow-lg"></button>
+                <button onclick="setTheme('sunset', this)" class="theme-btn w-8 h-8 bg-orange-400 rounded-full shadow-lg"></button>
             </div>
         </div>
-    </div>
 
-    <main class="w-full max-w-lg bg-white rounded-3xl shadow-2xl p-8 border-b-8 border-gray-200 relative">
-        <div id="categoryBadge" class="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-500 text-white px-6 py-1 rounded-full text-lg font-bold shadow-lg">
-            Learning Time
-        </div>
-
-        <div id="wordCard" class="flex flex-col items-center justify-center min-h-[250px] mb-8">
-            <h1 id="mainWord" class="kids-font text-8xl md:text-9xl text-blue-600 tracking-wide mb-4 text-center">A</h1>
-            <p id="feedbackText" class="text-xl font-bold text-gray-400 h-8 text-center">Tap Listen to hear the sound!</p>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4 mb-8">
-            <button onclick="listenToContent()" class="btn-bounce flex flex-col items-center justify-center bg-orange-400 hover:bg-orange-500 text-white rounded-2xl py-6 shadow-lg border-b-4 border-orange-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                </svg>
-                <span class="text-xl font-bold uppercase">Listen</span>
-            </button>
-
-            <button id="speakBtn" onclick="startRecognition()" class="btn-bounce flex flex-col items-center justify-center bg-green-400 hover:bg-green-500 text-white rounded-2xl py-6 shadow-lg border-b-4 border-green-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                </svg>
-                <span class="text-xl font-bold uppercase">Say it</span>
+        <!-- Speed Toggle (Rocket vs Turtle) -->
+        <div class="flex flex-col items-center border-r border-white/30">
+            <div class="flex items-center gap-1 mb-1">
+                <span class="text-xs">🏎️</span>
+                <span class="control-label">Speed</span>
+            </div>
+            <button id="slowVoiceBtn" onclick="toggleSlowVoice()" class="btn-squish w-14 h-10 bg-white/60 rounded-full flex items-center justify-around px-2 shadow-inner overflow-hidden relative">
+                <span id="speedIcon" class="text-2xl transition-all duration-300">🚀</span>
+                <div id="speedIndicator" class="absolute bottom-1 w-1 h-1 bg-indigo-500 rounded-full hidden"></div>
             </button>
         </div>
 
-        <div class="flex items-center justify-between gap-4">
-            <button onclick="prevItem()" class="btn-bounce bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-full p-4 flex-1 font-bold text-xl border-b-4 border-gray-400">
-                BACK
+        <!-- Grow/Shrink (Plant Icons) -->
+        <div class="flex flex-col items-center">
+            <div class="flex items-center gap-1 mb-1">
+                <span class="text-xs">🌳</span>
+                <span class="control-label">Grow</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="adjustFontSize(-1)" class="btn-squish w-9 h-9 bg-white/60 rounded-xl flex items-center justify-center text-xl shadow-sm">🌱</button>
+                <button onclick="adjustFontSize(1)" class="btn-squish w-9 h-9 bg-white/60 rounded-xl flex items-center justify-center text-xl shadow-sm">🌳</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Learning Toy -->
+    <main class="card-toy w-full max-w-md p-8 relative flex flex-col items-center flex-1 max-h-[520px] justify-center">
+        <div id="categoryBadge" class="absolute -top-4 bg-indigo-500 text-white px-6 py-2 rounded-full text-xs font-bold tracking-tighter uppercase shadow-xl kids-font">
+            Ready to Play!
+        </div>
+
+        <div class="flex flex-col items-center justify-center w-full bubble-animate">
+            <h1 id="mainWord" class="kids-font leading-none mb-4 transition-all duration-300 drop-shadow-sm">A</h1>
+            <div class="h-8 flex items-center justify-center">
+                <p id="feedbackText" class="text-sm font-bold opacity-30 italic">Tap a big button!</p>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="grid grid-cols-2 gap-6 w-full mt-8">
+            <button onclick="playAudio()" class="btn-squish flex flex-col items-center justify-center bg-orange-400 text-white rounded-[2.5rem] py-6 shadow-[0_10px_0_#c2410c]">
+                <div class="bg-white/20 p-4 rounded-full mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
+                </div>
+                <span class="kids-font font-bold uppercase text-base tracking-widest">Listen</span>
             </button>
-            <button onclick="nextItem()" class="btn-bounce bg-indigo-500 hover:bg-indigo-600 text-white rounded-full p-4 flex-[2] font-bold text-xl shadow-lg border-b-4 border-indigo-700">
-                NEXT
+
+            <button id="speakBtn" onclick="toggleSpeech()" class="btn-squish flex flex-col items-center justify-center bg-green-500 text-white rounded-[2.5rem] py-6 shadow-[0_10px_0_#15803d]">
+                <div id="micIcon" class="bg-white/20 p-4 rounded-full mb-2 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
+                </div>
+                <span id="speakLabel" class="kids-font font-bold uppercase text-base tracking-widest">Say It</span>
             </button>
         </div>
     </main>
 
-    <div id="modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl scale-0 transition-transform duration-300" id="modalContent">
-            <div class="text-6xl mb-4">✨</div>
-            <h2 class="kids-font text-3xl text-green-600 mb-2">Well Done!</h2>
-            <p id="modalMsg" class="text-xl text-gray-600 mb-6">You said it!</p>
-            <button onclick="closeModal()" class="w-full bg-green-500 hover:bg-green-600 text-white rounded-2xl py-4 font-bold text-xl shadow-lg border-b-4 border-green-700">
-                NEXT ONE
-            </button>
+    <!-- Navigation -->
+    <footer class="w-full max-w-md flex items-center gap-4 mt-8 mb-4">
+        <button onclick="changeItem(-1)" class="btn-squish bg-white dark:bg-slate-800 text-gray-400 rounded-3xl p-6 shadow-lg border-b-4 border-gray-200 dark:border-slate-900">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M15 19l-7-7 7-7" /></svg>
+        </button>
+        <button onclick="changeItem(1)" class="btn-squish flex-1 bg-indigo-600 text-white rounded-3xl py-6 kids-font font-bold text-2xl shadow-[0_10px_0_#312e81] tracking-wider uppercase">
+            Next! ➔
+        </button>
+    </footer>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 bg-indigo-900/60 backdrop-blur-xl hidden items-center justify-center z-50 p-6">
+        <div id="modalContent" class="bg-white dark:bg-slate-800 rounded-[4rem] p-12 max-w-sm w-full text-center shadow-2xl scale-75 opacity-0 transition-all duration-500 border-b-[16px] border-indigo-200">
+            <div class="text-8xl mb-6">🎈</div>
+            <h2 class="kids-font text-5xl text-indigo-600 mb-2">WOW!</h2>
+            <p id="modalMsg" class="text-2xl text-gray-500 mb-8 kids-font">You are a superstar!</p>
+            <button onclick="closeModal()" class="btn-squish w-full bg-yellow-400 text-yellow-900 rounded-[2.5rem] py-7 kids-font font-bold text-2xl shadow-[0_10px_0_#b45309]">KEEP PLAYING!</button>
         </div>
     </div>
 
     <script>
-        let content = [
-            { text: "A", type: "letter" }, { text: "a", type: "letter" },
-            { text: "B", type: "letter" }, { text: "b", type: "letter" },
-            { text: "C", type: "letter" }, { text: "c", type: "letter" },
-            { text: "D", type: "letter" }, { text: "d", type: "letter" },
-            { text: "E", type: "letter" }, { text: "e", type: "letter" },
-            { text: "F", type: "letter" }, { text: "f", type: "letter" },
-            { text: "G", type: "letter" }, { text: "g", type: "letter" },
-            { text: "H", type: "letter" }, { text: "h", type: "letter" },
-            { text: "I", type: "letter" }, { text: "i", type: "letter" },
-            { text: "J", type: "letter" }, { text: "j", type: "letter" },
-            { text: "K", type: "letter" }, { text: "k", type: "letter" },
-            { text: "L", type: "letter" }, { text: "l", type: "letter" },
-            { text: "M", type: "letter" }, { text: "m", type: "letter" },
-            { text: "N", type: "letter" }, { text: "n", type: "letter" },
-            { text: "O", type: "letter" }, { text: "o", type: "letter" },
-            { text: "P", type: "letter" }, { text: "p", type: "letter" },
-            { text: "Q", type: "letter" }, { text: "q", type: "letter" },
-            { text: "R", type: "letter" }, { text: "r", type: "letter" },
-            { text: "S", type: "letter" }, { text: "s", type: "letter" },
-            { text: "T", type: "letter" }, { text: "t", type: "letter" },
-            { text: "U", type: "letter" }, { text: "u", type: "letter" },
-            { text: "V", type: "letter" }, { text: "v", type: "letter" },
-            { text: "W", type: "letter" }, { text: "w", type: "letter" },
-            { text: "X", type: "letter" }, { text: "x", type: "letter" },
-            { text: "Y", type: "letter" }, { text: "y", type: "letter" },
-            { text: "Z", type: "letter" }, { text: "z", type: "letter" },
-            { text: "hi", type: "word" }, { text: "he", type: "word" },
-            { text: "so", type: "word" }, { text: "me", type: "word" },
-            { text: "to", type: "word" }, { text: "up", type: "word" },
-            { text: "in", type: "word" }, { text: "at", type: "word" },
-            { text: "go", type: "word" }, { text: "is", type: "word" },
-            { text: "it", type: "word" }, { text: "my", type: "word" },
-            { text: "no", type: "word" }, { text: "on", type: "word" },
-            { text: "we", type: "word" }, { text: "do", type: "word" }
+        let items = [
+            ...Array.from({length: 20}, (_, i) => ({ text: (i + 1).toString(), type: 'Number' })),
+            ...Array.from('ABCDEFGHIJKLMNOPQRSTUVWXYZ').map(l => ({ text: l, type: 'Big Letter' })), 
+            ...Array.from('abcdefghijklmnopqrstuvwxyz').map(l => ({ text: l, type: 'Small Letter' })), 
+            ...['Apple', 'Ball', 'Cat', 'Dog', 'Egg', 'Fish', 'Goat', 'Hat', 'Ice', 'Jar', 'Kite', 'Lion', 'Moon', 'Nest', 'Owl', 'Pig', 'Queen', 'Rain', 'Sun', 'Tree', 'Up', 'Van', 'Web', 'Xylophone', 'Yo-yo', 'Zebra', 'Red', 'Blue', 'Green', 'Yellow', 'Pink', 'Purple', 'Orange', 'One', 'Two', 'Three', 'Four', 'Five', 'Bird', 'Bear', 'Star', 'Cake', 'Milk', 'Book', 'Fish', 'Frog', 'Duck'].map(w => ({ text: w, type: 'Word' }))
         ];
-
-        function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
+        
+        function shuffle(a) { 
+            for (let i = a.length - 1; i > 0; i--) { 
+                const j = Math.floor(Math.random() * (i + 1)); 
+                [a[i], a[j]] = [a[j], a[i]]; 
+            } return a; 
         }
+        
+        items = shuffle(items);
 
-        content = shuffle(content);
-
-        let currentIndex = 0;
-        let stars = 0;
-        const mainWordEl = document.getElementById('mainWord');
-        const feedbackEl = document.getElementById('feedbackText');
-        const progressEl = document.getElementById('progressText');
-        const starEl = document.getElementById('starCount');
-        const categoryBadge = document.getElementById('categoryBadge');
-        const speakBtn = document.getElementById('speakBtn');
-
+        let currentIndex = parseInt(localStorage.getItem('alphaLearn_index')) || 0;
+        let score = parseInt(localStorage.getItem('alphaLearn_stars')) || 0;
+        let fontScale = 1.0;
+        let isSlowVoice = false;
+        let isListening = false;
         const synth = window.speechSynthesis;
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition = null;
-        let isSuccessDetected = false;
+
+        const mainWord = document.getElementById('mainWord');
+        const feedback = document.getElementById('feedbackText');
+        const progress = document.getElementById('progressText');
+        const starCount = document.getElementById('starCount');
+        const badge = document.getElementById('categoryBadge');
+        const speakBtn = document.getElementById('speakBtn');
+        const speakLabel = document.getElementById('speakLabel');
+        const micIcon = document.getElementById('micIcon');
+        const modal = document.getElementById('successModal');
+        const modalContent = document.getElementById('modalContent');
 
         if (SpeechRecognition) {
             recognition = new SpeechRecognition();
             recognition.lang = 'en-US';
-            recognition.continuous = false;
-            recognition.interimResults = true; // Hear results as they come in for speed
-
+            recognition.onstart = () => { isListening = true; updateMicUI(); };
             recognition.onresult = (event) => {
-                for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    const transcript = event.results[i][0].transcript.toLowerCase().trim().replace(/[.,]/g, "");
-                    const target = content[currentIndex].text.toLowerCase();
-                    
-                    if (transcript === target || transcript.includes(target)) {
-                        isSuccessDetected = true;
-                        recognition.stop(); // Stop mic ASAP on match
-                        handleSuccess();
-                        break;
-                    }
+                const transcript = event.results[0][0].transcript.toLowerCase().trim();
+                const target = items[currentIndex].text.toLowerCase();
+                if (transcript.includes(target)) { 
+                    recognition.stop(); 
+                    handleSuccess(); 
+                } else { 
+                    feedback.textContent = `Try saying "${items[currentIndex].text}"`; 
                 }
             };
-
-            recognition.onerror = () => stopRecognitionUI();
-            recognition.onend = () => {
-                if (!isSuccessDetected && feedbackEl.textContent === "Listening...") {
-                    handleFailure("nothing");
-                }
-                stopRecognitionUI();
-            };
+            recognition.onerror = () => stopSpeech();
+            recognition.onend = () => { isListening = false; updateMicUI(); };
         }
 
         function updateDisplay() {
-            const item = content[currentIndex];
-            mainWordEl.textContent = item.text;
-            categoryBadge.textContent = item.type === 'letter' ? 'Letter' : 'Word';
-            progressEl.textContent = `${currentIndex + 1} / ${content.length}`;
-            feedbackEl.textContent = "Tap Listen to hear the sound!";
-            feedbackEl.className = "text-xl font-bold text-gray-400 h-8 text-center";
+            const item = items[currentIndex];
+            mainWord.textContent = item.text;
+            badge.textContent = item.type;
+            
+            const badgeColors = { 'Number': '#f59e0b', 'Big Letter': '#6366f1', 'Small Letter': '#8b5cf6', 'Word': '#ec4899' };
+            badge.style.backgroundColor = badgeColors[item.type] || '#6366f1';
 
-            const colors = ['text-blue-600', 'text-pink-600', 'text-green-600', 'text-orange-600', 'text-purple-600'];
-            mainWordEl.className = `kids-font text-8xl md:text-9xl tracking-wide mb-4 text-center ${colors[currentIndex % colors.length]}`;
+            progress.textContent = `${currentIndex + 1}/${items.length}`;
+            starCount.textContent = score;
+            
+            const colors = ['#4F46E5', '#EC4899', '#10B981', '#F59E0B', '#8B5CF6', '#EF4444', '#06B6D4', '#F43F5E'];
+            mainWord.style.color = colors[currentIndex % colors.length];
+            
+            const isLongWord = item.text.length > 5;
+            const baseSize = window.innerWidth < 640 ? (isLongWord ? 4 : 7) : (isLongWord ? 6 : 9);
+            mainWord.style.fontSize = `${fontScale * baseSize}rem`;
+            
+            feedback.textContent = "Tap Listen or Say It!";
+            localStorage.setItem('alphaLearn_index', currentIndex);
+            localStorage.setItem('alphaLearn_stars', score);
         }
 
-        function listenToContent() {
+        function playAudio() {
             if (synth.speaking) synth.cancel();
-            const textToSay = content[currentIndex].text.toLowerCase();
-            const utter = new SpeechSynthesisUtterance(textToSay);
-            utter.rate = 0.7;
-            utter.pitch = 1.1;
+            const utter = new SpeechSynthesisUtterance(items[currentIndex].text);
+            utter.rate = isSlowVoice ? 0.35 : 0.85;
+            utter.pitch = 1.35;
             synth.speak(utter);
-            mainWordEl.classList.add('scale-110');
-            setTimeout(() => mainWordEl.classList.remove('scale-110'), 200);
         }
 
-        function startRecognition() {
-            if (!recognition) {
-                feedbackEl.textContent = "Voice not supported here.";
-                return;
+        function toggleSpeech() { 
+            if (!recognition) return; 
+            isListening ? recognition.stop() : recognition.start(); 
+        }
+
+        function updateMicUI() {
+            if (isListening) {
+                micIcon.classList.add('listen-pulse', 'scale-125');
+                speakLabel.textContent = "listening...";
+                speakBtn.style.backgroundColor = "#22c55e";
+            } else {
+                micIcon.classList.remove('listen-pulse', 'scale-125');
+                speakLabel.textContent = "Say It";
+                speakBtn.style.backgroundColor = ""; 
             }
-            isSuccessDetected = false;
-            feedbackEl.textContent = "Listening...";
-            feedbackEl.className = "text-xl font-bold text-green-500 h-8 animate-pulse text-center";
-            speakBtn.classList.add('listen-pulse');
-            recognition.start();
         }
 
-        function stopRecognitionUI() {
-            speakBtn.classList.remove('listen-pulse');
-        }
+        function stopSpeech() { if (recognition) recognition.stop(); isListening = false; updateMicUI(); }
 
         function handleSuccess() {
-            stars++;
-            starEl.textContent = stars;
-            document.getElementById('modalMsg').textContent = `Correct! It is "${content[currentIndex].text}"`;
-            openModal();
-            const utter = new SpeechSynthesisUtterance("Great job!");
-            utter.pitch = 1.4;
-            synth.speak(utter);
-        }
-
-        function handleFailure(heard) {
-            feedbackEl.textContent = `Try again!`;
-            feedbackEl.className = "text-xl font-bold text-orange-500 h-8 text-center";
-        }
-
-        function nextItem() {
-            if (currentIndex < content.length - 1) {
-                currentIndex++;
-                updateDisplay();
-            } else {
-                currentIndex = 0;
-                content = shuffle(content);
-                updateDisplay();
-            }
-        }
-
-        function prevItem() {
-            if (currentIndex > 0) {
-                currentIndex--;
-                updateDisplay();
-            }
-        }
-
-        function openModal() {
-            const modal = document.getElementById('modal');
-            const contentMod = document.getElementById('modalContent');
+            score++;
+            updateDisplay();
+            const cheers = ["Great job!", "You got it!", "Amazing!", "Super!", "Fantastic!", "High five!"];
+            synth.speak(new SpeechSynthesisUtterance(cheers[Math.floor(Math.random()*cheers.length)]));
             modal.classList.replace('hidden', 'flex');
-            setTimeout(() => contentMod.classList.add('scale-100'), 10);
+            setTimeout(() => { 
+                modalContent.classList.replace('scale-75', 'scale-100'); 
+                modalContent.classList.replace('opacity-0', 'opacity-100'); 
+            }, 50);
         }
 
         function closeModal() {
-            const modal = document.getElementById('modal');
-            const contentMod = document.getElementById('modalContent');
-            contentMod.classList.remove('scale-100');
-            setTimeout(() => {
-                modal.classList.replace('flex', 'hidden');
-                nextItem();
-            }, 300);
+            modalContent.classList.replace('scale-100', 'scale-75');
+            modalContent.classList.replace('opacity-100', 'opacity-0');
+            setTimeout(() => { modal.classList.replace('flex', 'hidden'); changeItem(1); }, 200);
+        }
+
+        function changeItem(dir) { 
+            stopSpeech(); 
+            currentIndex = (currentIndex + dir + items.length) % items.length; 
+            updateDisplay(); 
+        }
+
+        function adjustFontSize(dir) {
+            fontScale = Math.max(0.6, Math.min(1.4, fontScale + (dir * 0.1)));
+            updateDisplay();
+        }
+
+        function toggleSlowVoice() {
+            isSlowVoice = !isSlowVoice;
+            const icon = document.getElementById('speedIcon');
+            const btn = document.getElementById('slowVoiceBtn');
+            const indicator = document.getElementById('speedIndicator');
+            
+            icon.textContent = isSlowVoice ? '🐢' : '🚀';
+            btn.classList.toggle('bg-orange-100', isSlowVoice);
+            indicator.classList.toggle('hidden', !isSlowVoice);
+        }
+
+        function setTheme(theme, btn) {
+            document.body.className = "flex flex-col items-center p-4 overflow-hidden select-none";
+            if (theme === 'dark') document.body.classList.add('dark-mode');
+            if (theme === 'sunset') document.body.classList.add('sunset-mode');
+            document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active-theme'));
+            btn.classList.add('active-theme');
         }
 
         window.onload = updateDisplay;
     </script>
 </body>
 </html>
-
