@@ -3,8 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kids Study Buddy - Enhanced Mic</title>
+    <title>Kids Study Buddy - Pro Mic</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;700&family=Balsamiq+Sans:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -14,7 +19,7 @@
             --danger: #ff4b4b;
         }
 
-        body { font-family: 'Quicksand', sans-serif; touch-action: manipulation; }
+        body { font-family: 'Quicksand', sans-serif; touch-action: manipulation; transition: background-color 0.3s ease; }
         .font-kids-1 { font-family: 'Fredoka One', cursive; }
         .font-kids-2 { font-family: 'Quicksand', sans-serif; font-weight: 700; }
         .font-kids-3 { font-family: 'Balsamiq Sans', cursive; }
@@ -32,39 +37,45 @@
         @keyframes wave { 0%, 100% { height: 10px; } 50% { height: 30px; } }
         
         .accuracy-container { width: 100%; height: 12px; background: #e5e7eb; border-radius: 20px; margin: 15px 0; overflow: hidden; display: none; }
+        .dark .accuracy-container { background: #334155; }
         .accuracy-fill { height: 100%; width: 0%; transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 
         .shake { animation: shake 0.4s ease-in-out; }
         @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-8px);} 75%{transform:translateX(8px);} }
-        
-        .dark .bg-slate-800\/80 { background-color: rgba(30, 41, 59, 0.8); }
     </style>
 </head>
-<body class="bg-blue-50 dark:bg-slate-900 flex flex-col items-center justify-start min-h-screen p-4 overflow-hidden select-none transition-colors duration-500">
+<body class="bg-blue-50 dark:bg-slate-950 flex flex-col items-center justify-start min-h-screen p-4 overflow-hidden select-none">
 
-    <!-- Header & Controls -->
+    <!-- Top Navigation & Stats -->
     <div class="fixed top-4 w-full max-w-2xl px-6 flex flex-col gap-3 z-20">
         <div class="flex justify-between items-center">
             <div class="flex gap-2">
-                <div class="bg-white dark:bg-slate-800 rounded-2xl px-4 py-2 shadow-lg border-2 border-yellow-400">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl px-4 py-2 shadow-lg border-2 border-yellow-400 transition-colors">
                     <span class="text-xs font-bold text-gray-400 block">PROGRESS</span>
                     <span class="text-lg font-black text-yellow-600 dark:text-yellow-400" id="progressText">1 / 10</span>
                 </div>
-                <div class="bg-white dark:bg-slate-800 rounded-2xl px-4 py-2 shadow-lg border-2 border-green-400">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl px-4 py-2 shadow-lg border-2 border-green-400 transition-colors">
                     <span class="text-xs font-bold text-gray-400 block">STARS</span>
                     <span class="text-lg font-black text-green-600">⭐ <span id="starCount">0</span></span>
                 </div>
             </div>
             
             <div class="flex gap-2">
-                <button onclick="toggleTheme()" class="bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-lg border-2 border-indigo-400 text-indigo-500 btn-bounce">
-                    <svg id="themeIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                <button onclick="toggleTheme()" class="bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-lg border-2 border-indigo-400 text-indigo-500 dark:text-yellow-400 btn-bounce transition-colors">
+                    <!-- Moon Icon -->
+                    <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                    <!-- Sun Icon (Hidden by default) -->
+                    <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+                    </svg>
                 </button>
             </div>
         </div>
 
-        <!-- Customization Bar -->
-        <div class="flex items-center justify-between bg-white/80 dark:bg-slate-800/80 backdrop-blur-md p-3 rounded-2xl shadow-xl border-2 border-blue-200">
+        <!-- Customization & Categories -->
+        <div class="flex items-center justify-between bg-white/90 dark:bg-slate-800/90 backdrop-blur-md p-3 rounded-2xl shadow-xl border-2 border-blue-200 dark:border-slate-700 transition-colors">
             <div class="flex items-center gap-1">
                 <button onclick="adjustFontSize(-1)" class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-slate-700 dark:text-white font-bold text-sm btn-bounce">A-</button>
                 <button onclick="adjustFontSize(1)" class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-slate-700 dark:text-white font-bold text-sm btn-bounce">A+</button>
@@ -74,7 +85,7 @@
             
             <div class="flex gap-1">
                 <button onclick="filterType('ABC')" class="px-2 py-1 bg-orange-400 text-white rounded-lg text-[10px] font-black btn-bounce">ABC</button>
-                <button onclick="filterType('3LE')" class="px-2 py-1 bg-purple-500 text-white rounded-lg text-[10px] font-black btn-bounce">WORD</button>
+                <button onclick="filterType('3LE')" class="px-2 py-1 bg-purple-500 text-white rounded-lg text-[10px] font-black btn-bounce">WORDS</button>
                 <button onclick="filterType('NUM')" class="px-2 py-1 bg-green-500 text-white rounded-lg text-[10px] font-black btn-bounce">123</button>
             </div>
         </div>
@@ -85,14 +96,15 @@
         <div class="flex flex-col items-center justify-center min-h-[280px]">
             <h1 id="mainWord" class="font-kids-1 tracking-wider mb-2 text-center text-8xl dark:text-white transition-all duration-300">CAT</h1>
             
-            <!-- Accuracy/Duolingo Bar -->
+            <!-- Duolingo-style Accuracy Bar -->
             <div id="accuracyContainer" class="accuracy-container">
                 <div id="accuracyFill" class="accuracy-fill"></div>
             </div>
 
-            <p id="feedbackText" class="text-xl font-bold text-gray-400 text-center px-4 h-16 flex items-center justify-center">Ready to learn?</p>
+            <p id="feedbackText" class="text-xl font-bold text-gray-400 dark:text-gray-500 text-center px-4 h-16 flex items-center justify-center">Ready to start?</p>
         </div>
 
+        <!-- Mic & Speaker Controls -->
         <div class="grid grid-cols-2 gap-6 mb-8">
             <button onclick="playWordAudio()" class="btn-bounce flex flex-col items-center justify-center bg-orange-400 text-white rounded-3xl py-6 shadow-xl border-b-8 border-orange-600">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
@@ -113,59 +125,35 @@
 
         <div class="flex items-center justify-between gap-4">
             <button onclick="changeIndex(-1)" class="btn-bounce bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-300 rounded-2xl p-4 flex-1 font-black">BACK</button>
-            <button onclick="changeIndex(1)" class="btn-bounce bg-blue-500 text-white rounded-2xl p-4 flex-[2] font-black shadow-lg border-b-8 border-blue-700">NEXT WORD</button>
+            <button onclick="changeIndex(1)" class="btn-bounce bg-blue-500 text-white rounded-2xl p-4 flex-[2] font-black shadow-lg border-b-8 border-blue-700">NEXT</button>
         </div>
     </main>
 
-    <!-- Celebration Modal -->
+    <!-- Success Modal -->
     <div id="modal" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center z-50 p-6 backdrop-blur-md">
         <div class="bg-white dark:bg-slate-800 rounded-[40px] p-10 max-w-sm w-full text-center shadow-2xl scale-in" id="modalContent">
             <div id="modalIcon" class="text-8xl mb-4 animate-bounce">🏆</div>
-            <h2 id="modalTitle" class="font-kids-1 text-4xl text-green-600 mb-2">Amazing!</h2>
+            <h2 id="modalTitle" class="font-kids-1 text-4xl text-green-600 mb-2">Wow!</h2>
             <p id="modalMsg" class="text-xl text-gray-600 dark:text-gray-300 mb-8 font-bold"></p>
-            <button onclick="closeModal()" class="w-full bg-green-500 text-white rounded-2xl py-5 font-black text-2xl border-b-8 border-green-700 btn-bounce">AWESOME!</button>
+            <button onclick="closeModal()" class="w-full bg-green-500 text-white rounded-2xl py-5 font-black text-2xl border-b-8 border-green-700 btn-bounce">CONTINUE</button>
         </div>
     </div>
 
     <script>
+        // Data Collections
         const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").map(l => ({word: l, type: "ABC"}));
         
         const shortWordsList = [
             "CAT", "DOG", "SUN", "BOX", "BAT", "BED", "CUP", "HAT", "PIG", "RED", "BIG", "TOP", "BUS", "PEN", "PIN",
             "ANT", "BEE", "BUG", "FOX", "HEN", "OWL", "RAT", "ZIP", "WEB", "SKY", "FLY", "ICE", "TEA", "JAM", "NUT",
             "POT", "PAN", "NET", "JET", "VAN", "WET", "HOT", "MAP", "LOG", "FAN", "BAG", "CAP", "HAM", "LEG", "MOP",
-            "ACE", "ADD", "AGE", "AGO", "AID", "AIM", "AIR", "ALL", "AND", "ANY", "APE", "ARM", "ART", "ASH", "ASK",
-            "ATE", "AXE", "BAD", "BAN", "BAR", "BAY", "BEG", "BET", "BID", "BIN", "BIT", "BOA", "BOB", "BOG", "BOY",
-            "BUD", "BUM", "BUN", "BUT", "BUY", "BYE", "CAB", "CAN", "COB", "COG", "CON", "COP", "COT", "COW", "CRY",
-            "CUB", "CUT", "DAB", "DAD", "DAM", "DAY", "DEN", "DEW", "DID", "DIG", "DIM", "DIN", "DIP", "DOT", "DRY",
-            "DUB", "DUD", "DUE", "DUG", "DUN", "DYE", "EAR", "EAT", "EBB", "EGO", "ELK", "ELM", "END", "ERA", "EYE",
-            "FAR", "FAT", "FED", "FEE", "FEW", "FIG", "FIN", "FIR", "FIT", "FIX", "FOB", "FOE", "FOG", "FOR", "FRY",
-            "FUN", "FUR", "GAG", "GAP", "GAS", "GEL", "GEM", "GET", "GIG", "GIN", "GOB", "GOD", "GOT", "GUM", "GUN",
-            "GUT", "GUY", "GYM", "HAD", "HAS", "HAY", "HEM", "HER", "HEY", "HID", "HIM", "HIP", "HIS", "HIT", "HOB",
-            "HOG", "HOP", "HOW", "HUB", "HUE", "HUG", "HUM", "HUT", "ICY", "ILL", "IMP", "INK", "INN", "ION", "IRE",
-            "IRK", "IVY", "JAB", "JAG", "JAR", "JAW", "JAY", "JIG", "JOB", "JOE", "JOG", "JOY", "JUG", "JUT", "KEG",
-            "KEN", "KEY", "KID", "KIN", "KIT", "LAB", "LAD", "LAG", "LAM", "LAP", "LAW", "LAX", "LAY", "LEA", "LED",
-            "LEI", "LET", "LIB", "LID", "LIE", "LIP", "LIT", "LOB", "LOP", "LOT", "LOW", "LOX", "LUG", "LYE", "MAD",
-            "MAN", "MAR", "MAT", "MAW", "MAX", "MAY", "MEW", "MID", "MIL", "MIX", "MOB", "MOD", "MOO", "MOW", "MUD",
-            "MUG", "MUM", "NAB", "NAG", "NAP", "NAY", "NEW", "NIB", "NIL", "NIP", "NIT", "NIX", "NOB", "NOD", "NOG",
-            "NOR", "NOT", "NOW", "NUB", "NUN", "OAF", "OAK", "OAR", "OAT", "ODD", "ODE", "OFF", "OFT", "OHM", "OIL",
-            "OLD", "OLE", "ONE", "OPT", "ORB", "ORE", "ORT", "OUR", "OUT", "OWE", "OWN", "PAC", "PAD", "PAL", "PAP",
-            "PAR", "PAS", "PAT", "PAW", "PAY", "PEA", "PEG", "PEP", "PER", "PET", "PEW", "PHI", "PHO", "PIC", "PIE",
-            "PIP", "PIT", "PLY", "POD", "POI", "POP", "POW", "PRO", "PRY", "PUB", "PUG", "PUN", "PUP", "PUS", "PUT",
-            "QAT", "QUA", "QUO", "RAD", "RAG", "RAH", "RAI", "RAM", "RAN", "RAP", "RAW", "RAY", "REB", "REC", "REE",
-            "REF", "REG", "REI", "REM", "REP", "REV", "RHO", "RIB", "RID", "RIG", "RIM", "RIP", "ROB", "ROC", "ROD",
-            "ROE", "ROT", "ROW", "RUB", "RUE", "RUG", "RUM", "RUN", "RUT", "RYE", "SAB", "SAC", "SAD", "SAG", "SAL",
-            "SAP", "SAT", "SAX", "SAY", "SEA", "SEC", "SEE", "SEG", "SEI", "SEN", "SET", "SEW", "SEX", "SHE", "SHY",
-            "SIB", "SIC", "SIN", "SIP", "SIR", "SIS", "SIT", "SIX", "SKI", "SLY", "SOB", "SOD", "SOL", "SON", "SOP",
-            "SOT", "SOW", "SOY", "SPA", "SPY", "SUB", "SUE", "SUM", "SUP", "TAB", "TAD", "TAG", "TAM", "TAN", "TAP",
-            "TAR", "TAT", "TAU", "TAX", "TED", "TEE", "TEN", "THE", "THO", "THY", "TIC", "TIE", "TIL", "TIN", "TIP",
-            "TIT", "TOA", "TOD", "TOE", "TOG", "TOM", "TON", "TOO", "TOR", "TOT", "TOW", "TOY", "TRY", "TUB", "TUG",
-            "TUI", "TUN", "TUT", "TUX", "TWO", "TYE", "UDO", "UGH", "UKE", "ULE", "ULU", "UMM", "UMP", "UNI", "UNS",
-            "UPO", "UPS", "URB", "URD", "URN", "URU", "USE", "UTA", "UTE", "UTS"
+            "ARM", "EAR", "EYE", "DIP", "DIG", "RUN", "HOP", "SIT", "CUT", "EAT", "TEN", "SIX", "ONE", "TWO", "BOY",
+            "MAN", "DAD", "MOM", "SON", "JOY", "SAD", "MAD", "BAD", "DAY", "KEY", "INK", "OIL", "JAR", "CAN", "GUM",
+            "LID", "POT", "TAG", "TUB", "WIG", "BUN", "FOR", "GET", "HAS", "HAD", "HIS", "HER", "HOW", "NOT", "NOW",
+            "OFF", "OLD", "OUR", "OUT", "PUT", "SAY", "SEE", "SHE", "THE", "TOO", "WAS", "WHO", "WHY", "YES", "YOU"
         ];
         
-        const shortWords = [...new Set(shortWordsList)].map(w => ({word: w, type: "3LE"}));
-
+        const shortWords = shortWordsList.map(w => ({word: w, type: "3LE"}));
         const numbers = Array.from({length: 20}, (_, i) => ({word: (i + 1).toString(), type: "NUM"}));
 
         const numMap = {
@@ -181,6 +169,7 @@
         let fontIndex = 1;
         let isRecording = false;
 
+        // Speech Recognition Setup
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         const recognition = SpeechRecognition ? new SpeechRecognition() : null;
 
@@ -199,13 +188,13 @@
             recognition.onend = () => resetMicUI();
             recognition.onerror = () => {
                 resetMicUI();
-                updateFeedback("I couldn't hear you clearly. Try again! 📣", "text-orange-500");
+                updateFeedback("Didn't catch that. Try again! 📣", "text-orange-500");
             };
         }
 
         function toggleSpeech() {
             if (!recognition) {
-                updateFeedback("Mic not supported on this device.", "text-red-500");
+                updateFeedback("Mic not supported on this browser.", "text-red-500");
                 return;
             }
             if (isRecording) {
@@ -252,10 +241,10 @@
                 
                 if (accuracy > 80) {
                     accFill.style.backgroundColor = "#58cc02";
-                    updateFeedback("WOW! Perfect Pronunciation! 🌟", "text-green-500");
+                    updateFeedback("Excellent! Perfect! 🌟", "text-green-500");
                 } else {
                     accFill.style.backgroundColor = "#ffc800";
-                    updateFeedback("Good job! You said it! 👍", "text-green-600");
+                    updateFeedback("Good job! Keep practicing! 👍", "text-green-600");
                 }
 
                 document.getElementById('mainCard').classList.add('ring-8', 'ring-green-400');
@@ -286,7 +275,7 @@
             const mainWordEl = document.getElementById('mainWord');
             mainWordEl.textContent = item.word;
             document.getElementById('progressText').textContent = `${currentIndex + 1} / ${activeWords.length}`;
-            updateFeedback("Press Listen, then Say it!", "text-gray-400");
+            updateFeedback("Listen then say the word!", "text-gray-400");
             document.getElementById('accuracyContainer').style.display = 'none';
         }
 
@@ -305,7 +294,7 @@
         function changeIndex(delta) {
             currentIndex = (currentIndex + delta + activeWords.length) % activeWords.length;
             if (currentIndex === 0 && delta > 0) {
-                showModal("🌈", "Superstar!", `You finished ${activeWords.length} items!`);
+                showModal("🌈", "Superstar!", `You practiced ${activeWords.length} items!`);
             }
             updateUI();
         }
@@ -316,7 +305,7 @@
             } else if (type === '3LE') {
                 activeWords = [...shortWords].sort(() => Math.random() - 0.5);
             } else if (type === 'NUM') {
-                activeWords = [...numbers]; // Keep numbers in order or shuffle if preferred
+                activeWords = [...numbers];
             }
             currentIndex = 0;
             updateUI();
@@ -328,8 +317,23 @@
             f.className = `text-xl font-bold text-center px-4 h-16 flex items-center justify-center ${colorClass}`;
         }
 
+        // Fixed Toggle Theme Function
         function toggleTheme() {
-            document.documentElement.classList.toggle('dark');
+            const html = document.documentElement;
+            const moonIcon = document.getElementById('moonIcon');
+            const sunIcon = document.getElementById('sunIcon');
+            
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                moonIcon.classList.remove('hidden');
+                sunIcon.classList.add('hidden');
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.classList.add('dark');
+                moonIcon.classList.add('hidden');
+                sunIcon.classList.remove('hidden');
+                localStorage.setItem('theme', 'dark');
+            }
         }
 
         function showModal(icon, title, msg) {
@@ -343,7 +347,16 @@
             document.getElementById('modal').classList.add('hidden');
         }
 
-        window.onload = updateUI;
+        // Restore theme on load
+        window.onload = () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+                document.getElementById('moonIcon').classList.add('hidden');
+                document.getElementById('sunIcon').classList.remove('hidden');
+            }
+            updateUI();
+        };
     </script>
 </body>
 </html>
