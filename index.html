@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>👩‍⚕️Marley</title>
+    <title>Kids Study Buddy - Pro Mic & Sounds</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -62,11 +62,9 @@
             
             <div class="flex gap-2">
                 <button onclick="toggleTheme()" class="bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-lg border-2 border-indigo-400 text-indigo-500 dark:text-yellow-400 btn-bounce transition-colors">
-                    <!-- Moon Icon -->
                     <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                     </svg>
-                    <!-- Sun Icon (Hidden by default) -->
                     <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
                     </svg>
@@ -74,7 +72,7 @@
             </div>
         </div>
 
-        <!-- Customization & Categories -->
+        <!-- Customization Bar -->
         <div class="flex items-center justify-between bg-white/90 dark:bg-slate-800/90 backdrop-blur-md p-3 rounded-2xl shadow-xl border-2 border-blue-200 dark:border-slate-700 transition-colors">
             <div class="flex items-center gap-1">
                 <button onclick="adjustFontSize(-1)" class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-slate-700 dark:text-white font-bold text-sm btn-bounce">A-</button>
@@ -96,7 +94,6 @@
         <div class="flex flex-col items-center justify-center min-h-[280px]">
             <h1 id="mainWord" class="font-kids-1 tracking-wider mb-2 text-center text-8xl dark:text-white transition-all duration-300">CAT</h1>
             
-            <!-- Duolingo-style Accuracy Bar -->
             <div id="accuracyContainer" class="accuracy-container">
                 <div id="accuracyFill" class="accuracy-fill"></div>
             </div>
@@ -104,7 +101,6 @@
             <p id="feedbackText" class="text-xl font-bold text-gray-400 dark:text-gray-500 text-center px-4 h-16 flex items-center justify-center">Ready to start?</p>
         </div>
 
-        <!-- Mic & Speaker Controls -->
         <div class="grid grid-cols-2 gap-6 mb-8">
             <button onclick="playWordAudio()" class="btn-bounce flex flex-col items-center justify-center bg-orange-400 text-white rounded-3xl py-6 shadow-xl border-b-8 border-orange-600">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
@@ -140,9 +136,62 @@
     </div>
 
     <script>
-        // Data Collections
+        // --- Procedural Sound System ---
+        const SoundFX = {
+            ctx: null,
+            init() {
+                if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            },
+            play(type) {
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                const now = this.ctx.currentTime;
+
+                if (type === 'success') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.exponentialRampToValueAtTime(880, now + 0.1); // A5
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                } else if (type === 'fail') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(150, now);
+                    osc.frequency.linearRampToValueAtTime(100, now + 0.2);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(800, now);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                } else if (type === 'fanfare') {
+                    [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+                        const o = this.ctx.createOscillator();
+                        const g = this.ctx.createGain();
+                        o.connect(g);
+                        g.connect(this.ctx.destination);
+                        o.frequency.setValueAtTime(freq, now + (i * 0.1));
+                        g.gain.setValueAtTime(0.2, now + (i * 0.1));
+                        g.gain.exponentialRampToValueAtTime(0.01, now + (i * 0.1) + 0.5);
+                        o.start(now + (i * 0.1));
+                        o.stop(now + (i * 0.1) + 0.5);
+                    });
+                }
+            }
+        };
+
+        // --- Data ---
         const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").map(l => ({word: l, type: "ABC"}));
-        
         const shortWordsList = [
             "CAT", "DOG", "SUN", "BOX", "BAT", "BED", "CUP", "HAT", "PIG", "RED", "BIG", "TOP", "BUS", "PEN", "PIN",
             "ANT", "BEE", "BUG", "FOX", "HEN", "OWL", "RAT", "ZIP", "WEB", "SKY", "FLY", "ICE", "TEA", "JAM", "NUT",
@@ -152,7 +201,6 @@
             "LID", "POT", "TAG", "TUB", "WIG", "BUN", "FOR", "GET", "HAS", "HAD", "HIS", "HER", "HOW", "NOT", "NOW",
             "OFF", "OLD", "OUR", "OUT", "PUT", "SAY", "SEE", "SHE", "THE", "TOO", "WAS", "WHO", "WHY", "YES", "YOU"
         ];
-        
         const shortWords = shortWordsList.map(w => ({word: w, type: "3LE"}));
         const numbers = Array.from({length: 20}, (_, i) => ({word: (i + 1).toString(), type: "NUM"}));
 
@@ -169,7 +217,7 @@
         let fontIndex = 1;
         let isRecording = false;
 
-        // Speech Recognition Setup
+        // --- Speech Recognition ---
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         const recognition = SpeechRecognition ? new SpeechRecognition() : null;
 
@@ -177,32 +225,15 @@
             recognition.lang = 'en-US';
             recognition.interimResults = false;
             recognition.maxAlternatives = 1;
-
-            recognition.onresult = (event) => {
-                const result = event.results[0][0];
-                const transcript = result.transcript.toUpperCase().trim();
-                const confidence = result.confidence;
-                evaluateAnswer(transcript, confidence);
-            };
-
+            recognition.onresult = (e) => evaluateAnswer(e.results[0][0].transcript.toUpperCase().trim(), e.results[0][0].confidence);
             recognition.onend = () => resetMicUI();
-            recognition.onerror = () => {
-                resetMicUI();
-                updateFeedback("Didn't catch that. Try again! 📣", "text-orange-500");
-            };
+            recognition.onerror = () => { resetMicUI(); updateFeedback("Didn't catch that. Try again!", "text-orange-500"); };
         }
 
         function toggleSpeech() {
-            if (!recognition) {
-                updateFeedback("Mic not supported on this browser.", "text-red-500");
-                return;
-            }
-            if (isRecording) {
-                recognition.stop();
-            } else {
-                startMicUI();
-                recognition.start();
-            }
+            SoundFX.play('click');
+            if (!recognition) return updateFeedback("Mic not supported.", "text-red-500");
+            isRecording ? recognition.stop() : (startMicUI(), recognition.start());
         }
 
         function startMicUI() {
@@ -223,38 +254,26 @@
         }
 
         function evaluateAnswer(said, confidence) {
-            const currentItem = activeWords[currentIndex];
-            const target = currentItem.word.toUpperCase();
+            const target = activeWords[currentIndex].word.toUpperCase();
             const targetAlt = numMap[target] || target;
             const cleanedSaid = said.replace(/[^A-Z0-9]/g, "");
-            
             const accuracy = Math.round(confidence * 100);
-            const accBar = document.getElementById('accuracyContainer');
-            const accFill = document.getElementById('accuracyFill');
             
-            accBar.style.display = 'block';
+            document.getElementById('accuracyContainer').style.display = 'block';
 
             if (cleanedSaid === target || cleanedSaid === targetAlt || cleanedSaid.includes(target) || cleanedSaid.includes(targetAlt)) {
                 stars++;
+                SoundFX.play('success');
                 document.getElementById('starCount').textContent = stars;
-                accFill.style.width = accuracy + "%";
-                
-                if (accuracy > 80) {
-                    accFill.style.backgroundColor = "#58cc02";
-                    updateFeedback("Excellent! Perfect! 🌟", "text-green-500");
-                } else {
-                    accFill.style.backgroundColor = "#ffc800";
-                    updateFeedback("Good job! Keep practicing! 👍", "text-green-600");
-                }
-
+                document.getElementById('accuracyFill').style.width = accuracy + "%";
+                document.getElementById('accuracyFill').style.backgroundColor = accuracy > 80 ? "#58cc02" : "#ffc800";
+                updateFeedback(accuracy > 85 ? "Excellent! Perfect! 🌟" : "Good job! Keep practicing! 👍", "text-green-500");
                 document.getElementById('mainCard').classList.add('ring-8', 'ring-green-400');
-                setTimeout(() => {
-                    document.getElementById('mainCard').classList.remove('ring-8', 'ring-green-400');
-                    changeIndex(1);
-                }, 1500);
+                setTimeout(() => { document.getElementById('mainCard').classList.remove('ring-8', 'ring-green-400'); changeIndex(1); }, 1500);
             } else {
-                accFill.style.width = "30%";
-                accFill.style.backgroundColor = "#ff4b4b";
+                SoundFX.play('fail');
+                document.getElementById('accuracyFill').style.width = "30%";
+                document.getElementById('accuracyFill').style.backgroundColor = "#ff4b4b";
                 updateFeedback(`I heard "${said}". Try again! 🔄`, "text-red-500");
                 document.getElementById('mainCard').classList.add('shake');
                 setTimeout(() => document.getElementById('mainCard').classList.remove('shake'), 400);
@@ -262,8 +281,8 @@
         }
 
         function playWordAudio() {
-            const word = activeWords[currentIndex].word;
-            const utterance = new SpeechSynthesisUtterance(word.toLowerCase());
+            SoundFX.play('click');
+            const utterance = new SpeechSynthesisUtterance(activeWords[currentIndex].word.toLowerCase());
             utterance.lang = 'en-US';
             utterance.rate = 0.8;
             utterance.pitch = 1.1;
@@ -271,44 +290,40 @@
         }
 
         function updateUI() {
-            const item = activeWords[currentIndex];
-            const mainWordEl = document.getElementById('mainWord');
-            mainWordEl.textContent = item.word;
+            document.getElementById('mainWord').textContent = activeWords[currentIndex].word;
             document.getElementById('progressText').textContent = `${currentIndex + 1} / ${activeWords.length}`;
             updateFeedback("Listen then say the word!", "text-gray-400");
             document.getElementById('accuracyContainer').style.display = 'none';
         }
 
-        function adjustFontSize(delta) {
-            currentFontSize = Math.max(3, Math.min(15, currentFontSize + delta));
-            document.getElementById('mainWord').style.fontSize = currentFontSize + "rem";
-        }
-
-        function cycleFont() {
-            const el = document.getElementById('mainWord');
-            el.classList.remove(`font-kids-${fontIndex}`);
-            fontIndex = (fontIndex % 3) + 1;
-            el.classList.add(`font-kids-${fontIndex}`);
-        }
-
         function changeIndex(delta) {
+            SoundFX.play('click');
             currentIndex = (currentIndex + delta + activeWords.length) % activeWords.length;
             if (currentIndex === 0 && delta > 0) {
+                SoundFX.play('fanfare');
                 showModal("🌈", "Superstar!", `You practiced ${activeWords.length} items!`);
             }
             updateUI();
         }
 
         function filterType(type) {
-            if (type === 'ABC') {
-                activeWords = [...alphabet].sort(() => Math.random() - 0.5);
-            } else if (type === '3LE') {
-                activeWords = [...shortWords].sort(() => Math.random() - 0.5);
-            } else if (type === 'NUM') {
-                activeWords = [...numbers];
-            }
+            SoundFX.play('click');
+            activeWords = (type === 'ABC' ? [...alphabet] : type === '3LE' ? [...shortWords] : [...numbers]).sort(() => Math.random() - 0.5);
             currentIndex = 0;
             updateUI();
+        }
+
+        function adjustFontSize(delta) {
+            SoundFX.play('click');
+            currentFontSize = Math.max(3, Math.min(15, currentFontSize + delta));
+            document.getElementById('mainWord').style.fontSize = currentFontSize + "rem";
+        }
+
+        function cycleFont() {
+            SoundFX.play('click');
+            document.getElementById('mainWord').classList.remove(`font-kids-${fontIndex}`);
+            fontIndex = (fontIndex % 3) + 1;
+            document.getElementById('mainWord').classList.add(`font-kids-${fontIndex}`);
         }
 
         function updateFeedback(text, colorClass) {
@@ -317,23 +332,12 @@
             f.className = `text-xl font-bold text-center px-4 h-16 flex items-center justify-center ${colorClass}`;
         }
 
-        // Fixed Toggle Theme Function
         function toggleTheme() {
-            const html = document.documentElement;
-            const moonIcon = document.getElementById('moonIcon');
-            const sunIcon = document.getElementById('sunIcon');
-            
-            if (html.classList.contains('dark')) {
-                html.classList.remove('dark');
-                moonIcon.classList.remove('hidden');
-                sunIcon.classList.add('hidden');
-                localStorage.setItem('theme', 'light');
-            } else {
-                html.classList.add('dark');
-                moonIcon.classList.add('hidden');
-                sunIcon.classList.remove('hidden');
-                localStorage.setItem('theme', 'dark');
-            }
+            SoundFX.play('click');
+            const isDark = document.documentElement.classList.toggle('dark');
+            document.getElementById('moonIcon').classList.toggle('hidden', isDark);
+            document.getElementById('sunIcon').classList.toggle('hidden', !isDark);
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
         }
 
         function showModal(icon, title, msg) {
@@ -344,10 +348,10 @@
         }
 
         function closeModal() {
+            SoundFX.play('click');
             document.getElementById('modal').classList.add('hidden');
         }
 
-        // Restore theme on load
         window.onload = () => {
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme === 'dark') {
