@@ -3,185 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kids Study Buddy</title>
+    <title>Kids Study Buddy - Enhanced Mic</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;700&family=Balsamiq+Sans:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #58cc02;
+            --secondary: #1cb0f6;
+            --accent: #ffc800;
+            --danger: #ff4b4b;
+        }
+
         body { font-family: 'Quicksand', sans-serif; touch-action: manipulation; }
-        .kids-font { font-family: 'Fredoka One', cursive; }
-        .btn-bounce:active { transform: scale(0.95); }
-        .mic-active { background-color: #ef4444 !important; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
-        .wave-bar { width: 4px; height: 8px; background-color: white; border-radius: 2px; transition: height 0.1s ease; margin: 0 2px; }
+        .font-kids-1 { font-family: 'Fredoka One', cursive; }
+        .font-kids-2 { font-family: 'Quicksand', sans-serif; font-weight: 700; }
+        .font-kids-3 { font-family: 'Balsamiq Sans', cursive; }
+
+        .btn-bounce:active { transform: scale(0.92); }
+        
+        .mic-active { background-color: var(--danger) !important; animation: pulse 1.2s infinite; }
+        @keyframes pulse { 
+            0% { box-shadow: 0 0 0 0 rgba(255, 75, 75, 0.7); } 
+            70% { box-shadow: 0 0 0 20px rgba(255, 75, 75, 0); } 
+            100% { box-shadow: 0 0 0 0 rgba(255, 75, 75, 0); } 
+        }
+
+        .wave-bar { width: 6px; background-color: white; border-radius: 3px; animation: wave 0.6s infinite ease-in-out; }
+        @keyframes wave { 0%, 100% { height: 10px; } 50% { height: 30px; } }
+        
+        .accuracy-container { width: 100%; height: 12px; background: #e5e7eb; border-radius: 20px; margin: 15px 0; overflow: hidden; display: none; }
+        .accuracy-fill { height: 100%; width: 0%; transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
         .shake { animation: shake 0.4s ease-in-out; }
-        @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-10px);} 75%{transform:translateX(10px);} }
+        @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-8px);} 75%{transform:translateX(8px);} }
+        
+        .dark .bg-slate-800\/80 { background-color: rgba(30, 41, 59, 0.8); }
     </style>
 </head>
-<body class="bg-yellow-50 dark:bg-slate-900 flex flex-col items-center justify-start min-h-screen p-4 overflow-hidden select-none">
+<body class="bg-blue-50 dark:bg-slate-900 flex flex-col items-center justify-start min-h-screen p-4 overflow-hidden select-none transition-colors duration-500">
 
-    <div class="fixed top-4 w-full max-w-2xl px-6 flex flex-col gap-2 z-20">
-        <div class="flex justify-between items-center gap-2">
+    <!-- Header & Controls -->
+    <div class="fixed top-4 w-full max-w-2xl px-6 flex flex-col gap-3 z-20">
+        <div class="flex justify-between items-center">
             <div class="flex gap-2">
-                <div class="bg-white dark:bg-slate-800 rounded-full px-4 py-2 shadow-md border-2 border-yellow-400">
-                    <span class="text-lg font-bold text-yellow-600 dark:text-yellow-400" id="progressText">0 / 0</span>
+                <div class="bg-white dark:bg-slate-800 rounded-2xl px-4 py-2 shadow-lg border-2 border-yellow-400">
+                    <span class="text-xs font-bold text-gray-400 block">PROGRESS</span>
+                    <span class="text-lg font-black text-yellow-600 dark:text-yellow-400" id="progressText">1 / 10</span>
                 </div>
-                <div class="bg-white dark:bg-slate-800 rounded-full px-4 py-2 shadow-md border-2 border-green-400">
-                    <span class="text-lg font-bold text-green-600 dark:text-green-400">⭐ <span id="starCount">0</span></span>
+                <div class="bg-white dark:bg-slate-800 rounded-2xl px-4 py-2 shadow-lg border-2 border-green-400">
+                    <span class="text-xs font-bold text-gray-400 block">STARS</span>
+                    <span class="text-lg font-black text-green-600">⭐ <span id="starCount">0</span></span>
                 </div>
             </div>
-            <button onclick="document.documentElement.classList.toggle('dark')" class="bg-white dark:bg-slate-800 p-2 rounded-full shadow-md border-2 border-purple-400 text-purple-500">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
-            </button>
+            
+            <div class="flex gap-2">
+                <button onclick="toggleTheme()" class="bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-lg border-2 border-indigo-400 text-indigo-500 btn-bounce">
+                    <svg id="themeIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                </button>
+            </div>
         </div>
 
-        <div class="flex flex-wrap justify-center items-center gap-2 mt-2">
-            <button onclick="filterCategory('Alphabet')" class="bg-blue-500 text-white px-3 py-1 rounded-full font-bold text-sm shadow-md">ABC</button>
-            <button onclick="filterCategory('Numbers')" class="bg-green-500 text-white px-3 py-1 rounded-full font-bold text-sm shadow-md">123</button>
-            <button onclick="filterCategory('Words')" class="bg-purple-500 text-white px-3 py-1 rounded-full font-bold text-sm shadow-md">WORDS</button>
-            <div class="flex gap-1 ml-auto">
-                <button onclick="changeFont(-1)" class="bg-gray-200 dark:bg-slate-700 dark:text-white px-3 py-1 rounded-full font-bold">-</button>
-                <button onclick="changeFont(1)" class="bg-gray-200 dark:bg-slate-700 dark:text-white px-3 py-1 rounded-full font-bold">+</button>
+        <!-- Customization Bar -->
+        <div class="flex items-center justify-between bg-white/80 dark:bg-slate-800/80 backdrop-blur-md p-3 rounded-2xl shadow-xl border-2 border-blue-200">
+            <div class="flex items-center gap-1">
+                <button onclick="adjustFontSize(-1)" class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-slate-700 dark:text-white font-bold text-sm btn-bounce">A-</button>
+                <button onclick="adjustFontSize(1)" class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-slate-700 dark:text-white font-bold text-sm btn-bounce">A+</button>
+            </div>
+            
+            <button onclick="cycleFont()" class="bg-blue-500 text-white px-3 py-1.5 rounded-xl font-bold text-xs shadow-md btn-bounce">FONT</button>
+            
+            <div class="flex gap-1">
+                <button onclick="filterType('ABC')" class="px-2 py-1 bg-orange-400 text-white rounded-lg text-[10px] font-black btn-bounce">ABC</button>
+                <button onclick="filterType('3LE')" class="px-2 py-1 bg-purple-500 text-white rounded-lg text-[10px] font-black btn-bounce">WORD</button>
+                <button onclick="filterType('NUM')" class="px-2 py-1 bg-green-500 text-white rounded-lg text-[10px] font-black btn-bounce">123</button>
             </div>
         </div>
     </div>
 
-    <main id="mainCard" class="w-full max-w-lg bg-white dark:bg-slate-800 rounded-3xl shadow-2xl p-6 border-b-8 border-gray-200 dark:border-slate-950 relative mt-32 transition-all">
-        <div class="flex flex-col items-center justify-center min-h-[250px] mb-6">
-            <h1 id="mainWord" class="kids-font tracking-wide mb-2 text-center text-9xl dark:text-white">A</h1>
-            <p id="feedbackText" class="text-xl font-bold text-gray-400 text-center px-4 h-14 flex items-center justify-center">Press Listen, then Say it!</p>
+    <!-- Main Learning Card -->
+    <main id="mainCard" class="w-full max-w-lg bg-white dark:bg-slate-800 rounded-[40px] shadow-2xl p-8 border-b-[12px] border-gray-200 dark:border-slate-950 relative mt-44 transition-all duration-300">
+        <div class="flex flex-col items-center justify-center min-h-[280px]">
+            <h1 id="mainWord" class="font-kids-1 tracking-wider mb-2 text-center text-8xl dark:text-white transition-all duration-300">CAT</h1>
+            
+            <!-- Accuracy/Duolingo Bar -->
+            <div id="accuracyContainer" class="accuracy-container">
+                <div id="accuracyFill" class="accuracy-fill"></div>
+            </div>
+
+            <p id="feedbackText" class="text-xl font-bold text-gray-400 text-center px-4 h-16 flex items-center justify-center">Ready to learn?</p>
         </div>
 
-        <div class="grid grid-cols-2 gap-4 mb-6">
-            <button onclick="listenToWord()" class="btn-bounce flex flex-col items-center justify-center bg-orange-400 text-white rounded-2xl py-6 shadow-lg border-b-4 border-orange-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
-                <span class="font-bold uppercase">LISTEN</span>
+        <div class="grid grid-cols-2 gap-6 mb-8">
+            <button onclick="playWordAudio()" class="btn-bounce flex flex-col items-center justify-center bg-orange-400 text-white rounded-3xl py-6 shadow-xl border-b-8 border-orange-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
+                <span class="font-black text-base">LISTEN</span>
             </button>
-            <button id="speakBtn" onclick="toggleMic()" class="btn-bounce flex flex-col items-center justify-center bg-red-400 text-white rounded-2xl py-6 shadow-lg border-b-4 border-red-600 relative transition-all">
-                <div id="waveform" class="flex items-end justify-center gap-1 h-10 mb-2 hidden">
-                    <div class="wave-bar h-4"></div><div class="wave-bar h-8"></div><div class="wave-bar h-6"></div>
-                    <div class="wave-bar h-10"></div><div class="wave-bar h-5"></div>
+            
+            <button id="speakBtn" onclick="toggleSpeech()" class="btn-bounce flex flex-col items-center justify-center bg-red-400 text-white rounded-3xl py-6 shadow-xl border-b-8 border-red-600 transition-all">
+                <div id="waveform" class="flex items-center justify-center gap-1.5 h-10 mb-2 hidden">
+                    <div class="wave-bar" style="animation-delay: 0.1s"></div>
+                    <div class="wave-bar" style="animation-delay: 0.3s"></div>
+                    <div class="wave-bar" style="animation-delay: 0.5s"></div>
+                    <div class="wave-bar" style="animation-delay: 0.2s"></div>
                 </div>
-                <svg id="micIcon" xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
-                <span id="micBtnText" class="font-bold uppercase">SAY IT</span>
+                <svg id="micIcon" xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
+                <span id="micBtnText" class="font-black text-base uppercase">SAY IT</span>
             </button>
         </div>
 
         <div class="flex items-center justify-between gap-4">
-            <button onclick="prevWord()" class="btn-bounce bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-300 rounded-full p-4 flex-1 font-bold">BACK</button>
-            <button onclick="nextWord()" class="btn-bounce bg-blue-500 text-white rounded-full p-4 flex-[2] font-bold shadow-lg border-b-4 border-blue-700">NEXT</button>
+            <button onclick="changeIndex(-1)" class="btn-bounce bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-300 rounded-2xl p-4 flex-1 font-black">BACK</button>
+            <button onclick="changeIndex(1)" class="btn-bounce bg-blue-500 text-white rounded-2xl p-4 flex-[2] font-black shadow-lg border-b-8 border-blue-700">NEXT WORD</button>
         </div>
     </main>
 
-    <div id="modal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-        <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl transition-all" id="modalContent">
-            <div id="modalIcon" class="text-6xl mb-4">⭐</div>
-            <h2 id="modalTitle" class="kids-font text-3xl text-green-600 mb-2">Wow!</h2>
-            <p id="modalMsg" class="text-xl text-gray-600 dark:text-gray-300 mb-6"></p>
-            <button onclick="closeModal()" class="w-full bg-green-500 text-white rounded-2xl py-4 font-bold text-xl border-b-4 border-green-700">CONTINUE</button>
+    <!-- Celebration Modal -->
+    <div id="modal" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center z-50 p-6 backdrop-blur-md">
+        <div class="bg-white dark:bg-slate-800 rounded-[40px] p-10 max-w-sm w-full text-center shadow-2xl scale-in" id="modalContent">
+            <div id="modalIcon" class="text-8xl mb-4 animate-bounce">🏆</div>
+            <h2 id="modalTitle" class="font-kids-1 text-4xl text-green-600 mb-2">Amazing!</h2>
+            <p id="modalMsg" class="text-xl text-gray-600 dark:text-gray-300 mb-8 font-bold"></p>
+            <button onclick="closeModal()" class="w-full bg-green-500 text-white rounded-2xl py-5 font-black text-2xl border-b-8 border-green-700 btn-bounce">AWESOME!</button>
         </div>
     </div>
 
     <script>
-        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").map(l => ({word: l, type: "Alphabet"}));
-        const numbers = Array.from({length: 21}, (_, i) => ({word: i.toString(), type: "Numbers"}));
-        const shortWords = [
-            "am","an","as","at","be","by","do","go","he","hi","if","in","is","it","me","my","no","of","oh","on","or","so","to","up","us","we",
-            "cat","dog","hat","pig","sun","bus","red","big","hot","cup","bat","bed","box","can","cap","dad","fan","fox","gum","jet",
-            "leg","lid","log","mad","map","net","nut","pan","pen","pet","pot","rat","rug","sat","sit","tag","ten","top","tub","van",
-            "wet","wig","win","zip","bag","bug","dig","fit","get","hop","job","key","lap","ink","ice","owl","egg","cow","fly","sky"
-        ].map(w => ({word: w.toUpperCase(), type: "Words"}));
-
-        let allContent = [...letters, ...numbers, ...shortWords];
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").map(l => ({word: l, type: "ABC"}));
         
-        // Shuffle helper
-        function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
+        const shortWordsList = [
+            "CAT", "DOG", "SUN", "BOX", "BAT", "BED", "CUP", "HAT", "PIG", "RED", "BIG", "TOP", "BUS", "PEN", "PIN",
+            "ANT", "BEE", "BUG", "FOX", "HEN", "OWL", "RAT", "ZIP", "WEB", "SKY", "FLY", "ICE", "TEA", "JAM", "NUT",
+            "POT", "PAN", "NET", "JET", "VAN", "WET", "HOT", "MAP", "LOG", "FAN", "BAG", "CAP", "HAM", "LEG", "MOP",
+            "ACE", "ADD", "AGE", "AGO", "AID", "AIM", "AIR", "ALL", "AND", "ANY", "APE", "ARM", "ART", "ASH", "ASK",
+            "ATE", "AXE", "BAD", "BAN", "BAR", "BAY", "BEG", "BET", "BID", "BIN", "BIT", "BOA", "BOB", "BOG", "BOY",
+            "BUD", "BUM", "BUN", "BUT", "BUY", "BYE", "CAB", "CAN", "COB", "COG", "CON", "COP", "COT", "COW", "CRY",
+            "CUB", "CUT", "DAB", "DAD", "DAM", "DAY", "DEN", "DEW", "DID", "DIG", "DIM", "DIN", "DIP", "DOT", "DRY",
+            "DUB", "DUD", "DUE", "DUG", "DUN", "DYE", "EAR", "EAT", "EBB", "EGO", "ELK", "ELM", "END", "ERA", "EYE",
+            "FAR", "FAT", "FED", "FEE", "FEW", "FIG", "FIN", "FIR", "FIT", "FIX", "FOB", "FOE", "FOG", "FOR", "FRY",
+            "FUN", "FUR", "GAG", "GAP", "GAS", "GEL", "GEM", "GET", "GIG", "GIN", "GOB", "GOD", "GOT", "GUM", "GUN",
+            "GUT", "GUY", "GYM", "HAD", "HAS", "HAY", "HEM", "HER", "HEY", "HID", "HIM", "HIP", "HIS", "HIT", "HOB",
+            "HOG", "HOP", "HOW", "HUB", "HUE", "HUG", "HUM", "HUT", "ICY", "ILL", "IMP", "INK", "INN", "ION", "IRE",
+            "IRK", "IVY", "JAB", "JAG", "JAR", "JAW", "JAY", "JIG", "JOB", "JOE", "JOG", "JOY", "JUG", "JUT", "KEG",
+            "KEN", "KEY", "KID", "KIN", "KIT", "LAB", "LAD", "LAG", "LAM", "LAP", "LAW", "LAX", "LAY", "LEA", "LED",
+            "LEI", "LET", "LIB", "LID", "LIE", "LIP", "LIT", "LOB", "LOP", "LOT", "LOW", "LOX", "LUG", "LYE", "MAD",
+            "MAN", "MAR", "MAT", "MAW", "MAX", "MAY", "MEW", "MID", "MIL", "MIX", "MOB", "MOD", "MOO", "MOW", "MUD",
+            "MUG", "MUM", "NAB", "NAG", "NAP", "NAY", "NEW", "NIB", "NIL", "NIP", "NIT", "NIX", "NOB", "NOD", "NOG",
+            "NOR", "NOT", "NOW", "NUB", "NUN", "OAF", "OAK", "OAR", "OAT", "ODD", "ODE", "OFF", "OFT", "OHM", "OIL",
+            "OLD", "OLE", "ONE", "OPT", "ORB", "ORE", "ORT", "OUR", "OUT", "OWE", "OWN", "PAC", "PAD", "PAL", "PAP",
+            "PAR", "PAS", "PAT", "PAW", "PAY", "PEA", "PEG", "PEP", "PER", "PET", "PEW", "PHI", "PHO", "PIC", "PIE",
+            "PIP", "PIT", "PLY", "POD", "POI", "POP", "POW", "PRO", "PRY", "PUB", "PUG", "PUN", "PUP", "PUS", "PUT",
+            "QAT", "QUA", "QUO", "RAD", "RAG", "RAH", "RAI", "RAM", "RAN", "RAP", "RAW", "RAY", "REB", "REC", "REE",
+            "REF", "REG", "REI", "REM", "REP", "REV", "RHO", "RIB", "RID", "RIG", "RIM", "RIP", "ROB", "ROC", "ROD",
+            "ROE", "ROT", "ROW", "RUB", "RUE", "RUG", "RUM", "RUN", "RUT", "RYE", "SAB", "SAC", "SAD", "SAG", "SAL",
+            "SAP", "SAT", "SAX", "SAY", "SEA", "SEC", "SEE", "SEG", "SEI", "SEN", "SET", "SEW", "SEX", "SHE", "SHY",
+            "SIB", "SIC", "SIN", "SIP", "SIR", "SIS", "SIT", "SIX", "SKI", "SLY", "SOB", "SOD", "SOL", "SON", "SOP",
+            "SOT", "SOW", "SOY", "SPA", "SPY", "SUB", "SUE", "SUM", "SUP", "TAB", "TAD", "TAG", "TAM", "TAN", "TAP",
+            "TAR", "TAT", "TAU", "TAX", "TED", "TEE", "TEN", "THE", "THO", "THY", "TIC", "TIE", "TIL", "TIN", "TIP",
+            "TIT", "TOA", "TOD", "TOE", "TOG", "TOM", "TON", "TOO", "TOR", "TOT", "TOW", "TOY", "TRY", "TUB", "TUG",
+            "TUI", "TUN", "TUT", "TUX", "TWO", "TYE", "UDO", "UGH", "UKE", "ULE", "ULU", "UMM", "UMP", "UNI", "UNS",
+            "UPO", "UPS", "URB", "URD", "URN", "URU", "USE", "UTA", "UTE", "UTS"
+        ];
+        
+        const shortWords = [...new Set(shortWordsList)].map(w => ({word: w, type: "3LE"}));
 
-        let words = shuffle([...allContent]);
+        const numbers = Array.from({length: 20}, (_, i) => ({word: (i + 1).toString(), type: "NUM"}));
+
+        const numMap = {
+            "1":"ONE","2":"TWO","3":"THREE","4":"FOUR","5":"FIVE","6":"SIX","7":"SEVEN","8":"EIGHT","9":"NINE","10":"TEN",
+            "11":"ELEVEN","12":"TWELVE","13":"THIRTEEN","14":"FOURTEEN","15":"FIFTEEN","16":"SIXTEEN","17":"SEVENTEEN","18":"EIGHTEEN","19":"NINETEEN","20":"TWENTY"
+        };
+
+        let allWords = [...alphabet, ...shortWords, ...numbers];
+        let activeWords = allWords.sort(() => Math.random() - 0.5);
         let currentIndex = 0;
         let stars = 0;
-        let fontSizeRem = 8;
-        let isListening = false;
+        let currentFontSize = 8;
+        let fontIndex = 1;
+        let isRecording = false;
 
-        const recognition = (window.SpeechRecognition || window.webkitSpeechRecognition) ? new (window.SpeechRecognition || window.webkitSpeechRecognition)() : null;
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = SpeechRecognition ? new SpeechRecognition() : null;
+
         if (recognition) {
-            recognition.continuous = false;
             recognition.lang = 'en-US';
             recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
 
             recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript.trim().toUpperCase();
-                checkAnswer(transcript);
+                const result = event.results[0][0];
+                const transcript = result.transcript.toUpperCase().trim();
+                const confidence = result.confidence;
+                evaluateAnswer(transcript, confidence);
             };
 
-            recognition.onend = () => {
-                stopMicUI();
-            };
-
+            recognition.onend = () => resetMicUI();
             recognition.onerror = () => {
-                stopMicUI();
-                showFeedback("Didn't hear that. Try again!", "text-red-500");
+                resetMicUI();
+                updateFeedback("I couldn't hear you clearly. Try again! 📣", "text-orange-500");
             };
         }
 
-        function updateDisplay() {
-            const item = words[currentIndex];
-            const mainWordEl = document.getElementById('mainWord');
-            mainWordEl.textContent = item.word;
-            mainWordEl.style.fontSize = fontSizeRem + "rem";
-            document.getElementById('progressText').textContent = `${currentIndex + 1} / ${words.length}`;
-            showFeedback("Press Listen, then Say it!", "text-gray-400");
-        }
-
-        function nextWord() {
-            if (currentIndex < words.length - 1) {
-                currentIndex++;
-                updateDisplay();
-            } else {
-                showModal("🏆", "Expert!", "You finished the whole list!");
-                currentIndex = 0;
-                words = shuffle([...allContent]);
-                updateDisplay();
-            }
-        }
-
-        function prevWord() {
-            if (currentIndex > 0) {
-                currentIndex--;
-                updateDisplay();
-            }
-        }
-
-        function changeFont(delta) {
-            fontSizeRem = Math.max(3, Math.min(15, fontSizeRem + delta));
-            document.getElementById('mainWord').style.fontSize = fontSizeRem + "rem";
-        }
-
-        function filterCategory(cat) {
-            words = shuffle(allContent.filter(w => w.type === cat));
-            currentIndex = 0;
-            updateDisplay();
-        }
-
-        function listenToWord() {
-            const word = words[currentIndex].word;
-            const u = new SpeechSynthesisUtterance(word.toLowerCase()); // Lowercase avoids "Capital" trigger
-            u.rate = 0.8;
-            u.pitch = 1.2;
-            window.speechSynthesis.speak(u);
-        }
-
-        function toggleMic() {
+        function toggleSpeech() {
             if (!recognition) {
-                showFeedback("Mic not supported on this browser.", "text-red-500");
+                updateFeedback("Mic not supported on this device.", "text-red-500");
                 return;
             }
-            if (isListening) {
+            if (isRecording) {
                 recognition.stop();
             } else {
                 startMicUI();
@@ -190,48 +217,119 @@
         }
 
         function startMicUI() {
-            isListening = true;
-            const btn = document.getElementById('speakBtn');
-            btn.classList.add('mic-active');
+            isRecording = true;
+            document.getElementById('speakBtn').classList.add('mic-active');
             document.getElementById('micIcon').classList.add('hidden');
             document.getElementById('waveform').classList.remove('hidden');
             document.getElementById('micBtnText').textContent = "LISTENING...";
+            document.getElementById('accuracyContainer').style.display = 'none';
         }
 
-        function stopMicUI() {
-            isListening = false;
-            const btn = document.getElementById('speakBtn');
-            btn.classList.remove('mic-active');
+        function resetMicUI() {
+            isRecording = false;
+            document.getElementById('speakBtn').classList.remove('mic-active');
             document.getElementById('micIcon').classList.remove('hidden');
             document.getElementById('waveform').classList.add('hidden');
             document.getElementById('micBtnText').textContent = "SAY IT";
         }
 
-        function checkAnswer(said) {
-            const target = words[currentIndex].word;
-            // Handle numbers (synthesis vs transcript)
-            const cleanSaid = said.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").toUpperCase();
+        function evaluateAnswer(said, confidence) {
+            const currentItem = activeWords[currentIndex];
+            const target = currentItem.word.toUpperCase();
+            const targetAlt = numMap[target] || target;
+            const cleanedSaid = said.replace(/[^A-Z0-9]/g, "");
             
-            if (cleanSaid === target || cleanSaid.includes(target)) {
+            const accuracy = Math.round(confidence * 100);
+            const accBar = document.getElementById('accuracyContainer');
+            const accFill = document.getElementById('accuracyFill');
+            
+            accBar.style.display = 'block';
+
+            if (cleanedSaid === target || cleanedSaid === targetAlt || cleanedSaid.includes(target) || cleanedSaid.includes(targetAlt)) {
                 stars++;
                 document.getElementById('starCount').textContent = stars;
-                showFeedback("Correct! Perfect!", "text-green-500");
-                document.getElementById('mainCard').classList.add('ring-4', 'ring-green-400');
+                accFill.style.width = accuracy + "%";
+                
+                if (accuracy > 80) {
+                    accFill.style.backgroundColor = "#58cc02";
+                    updateFeedback("WOW! Perfect Pronunciation! 🌟", "text-green-500");
+                } else {
+                    accFill.style.backgroundColor = "#ffc800";
+                    updateFeedback("Good job! You said it! 👍", "text-green-600");
+                }
+
+                document.getElementById('mainCard').classList.add('ring-8', 'ring-green-400');
                 setTimeout(() => {
-                    document.getElementById('mainCard').classList.remove('ring-4', 'ring-green-400');
-                    nextWord();
-                }, 1000);
+                    document.getElementById('mainCard').classList.remove('ring-8', 'ring-green-400');
+                    changeIndex(1);
+                }, 1500);
             } else {
-                showFeedback(`I heard "${said}". Try again!`, "text-orange-500");
+                accFill.style.width = "30%";
+                accFill.style.backgroundColor = "#ff4b4b";
+                updateFeedback(`I heard "${said}". Try again! 🔄`, "text-red-500");
                 document.getElementById('mainCard').classList.add('shake');
                 setTimeout(() => document.getElementById('mainCard').classList.remove('shake'), 400);
             }
         }
 
-        function showFeedback(text, colorClass) {
+        function playWordAudio() {
+            const word = activeWords[currentIndex].word;
+            const utterance = new SpeechSynthesisUtterance(word.toLowerCase());
+            utterance.lang = 'en-US';
+            utterance.rate = 0.8;
+            utterance.pitch = 1.1;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function updateUI() {
+            const item = activeWords[currentIndex];
+            const mainWordEl = document.getElementById('mainWord');
+            mainWordEl.textContent = item.word;
+            document.getElementById('progressText').textContent = `${currentIndex + 1} / ${activeWords.length}`;
+            updateFeedback("Press Listen, then Say it!", "text-gray-400");
+            document.getElementById('accuracyContainer').style.display = 'none';
+        }
+
+        function adjustFontSize(delta) {
+            currentFontSize = Math.max(3, Math.min(15, currentFontSize + delta));
+            document.getElementById('mainWord').style.fontSize = currentFontSize + "rem";
+        }
+
+        function cycleFont() {
+            const el = document.getElementById('mainWord');
+            el.classList.remove(`font-kids-${fontIndex}`);
+            fontIndex = (fontIndex % 3) + 1;
+            el.classList.add(`font-kids-${fontIndex}`);
+        }
+
+        function changeIndex(delta) {
+            currentIndex = (currentIndex + delta + activeWords.length) % activeWords.length;
+            if (currentIndex === 0 && delta > 0) {
+                showModal("🌈", "Superstar!", `You finished ${activeWords.length} items!`);
+            }
+            updateUI();
+        }
+
+        function filterType(type) {
+            if (type === 'ABC') {
+                activeWords = [...alphabet].sort(() => Math.random() - 0.5);
+            } else if (type === '3LE') {
+                activeWords = [...shortWords].sort(() => Math.random() - 0.5);
+            } else if (type === 'NUM') {
+                activeWords = [...numbers]; // Keep numbers in order or shuffle if preferred
+            }
+            currentIndex = 0;
+            updateUI();
+        }
+
+        function updateFeedback(text, colorClass) {
             const f = document.getElementById('feedbackText');
             f.textContent = text;
-            f.className = `text-xl font-bold text-center px-4 h-14 flex items-center justify-center ${colorClass}`;
+            f.className = `text-xl font-bold text-center px-4 h-16 flex items-center justify-center ${colorClass}`;
+        }
+
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
         }
 
         function showModal(icon, title, msg) {
@@ -245,7 +343,7 @@
             document.getElementById('modal').classList.add('hidden');
         }
 
-        window.onload = updateDisplay;
+        window.onload = updateUI;
     </script>
 </body>
 </html>
