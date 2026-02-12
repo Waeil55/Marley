@@ -1,229 +1,260 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎨 Kids Study Buddy</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = { darkMode: 'class' }
-    </script>
-    <style>
-        body { font-family: 'Quicksand', sans-serif; touch-action: manipulation; }
-        .kids-font { font-family: 'Fredoka One', cursive; }
-        .btn-bounce:active { transform: scale(0.95); }
-        .mic-active { animation: pulse-red 1s infinite; background-color: #ef4444 !important; }
-        @keyframes pulse-red {
-            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎨 Kids Study Buddy</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+
+<script>
+tailwind.config = { darkMode: 'class' }
+</script>
+
+<style>
+body { font-family: 'Quicksand', sans-serif; touch-action: manipulation; }
+.kids-font { font-family: 'Fredoka One', cursive; }
+.btn-bounce:active { transform: scale(0.95); }
+
+.mic-active {
+    animation: pulse-red 0.8s infinite;
+    background-color: #ef4444 !important;
+}
+
+@keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(239,68,68,.7); }
+    70% { box-shadow: 0 0 0 30px rgba(239,68,68,0); }
+    100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+}
+
+.glow-success {
+    box-shadow: 0 0 40px rgba(34,197,94,.7);
+    transition: all .2s;
+}
+
+.shake { animation: shake .4s ease-in-out; }
+
+@keyframes shake {
+    0%,100%{transform:translateX(0)}
+    25%{transform:translateX(-8px)}
+    75%{transform:translateX(8px)}
+}
+</style>
 </head>
+
 <body class="bg-yellow-50 dark:bg-slate-900 flex flex-col items-center justify-center min-h-screen p-4 overflow-hidden select-none">
 
-    <div class="fixed top-4 w-full max-w-2xl px-6 flex justify-between items-center z-20 gap-2">
-        <div class="flex gap-2">
-            <div class="bg-white dark:bg-slate-800 rounded-full px-4 py-2 shadow-md border-2 border-yellow-400">
-                <span class="text-lg font-bold text-yellow-600 dark:text-yellow-400" id="progressText">1 / 130</span>
-            </div>
-            <div class="bg-white dark:bg-slate-800 rounded-full px-4 py-2 shadow-md border-2 border-green-400">
-                <span class="text-lg font-bold text-green-600 dark:text-green-400">⭐ <span id="starCount">0</span></span>
-            </div>
+<div class="fixed top-4 w-full max-w-2xl px-6 flex justify-between items-center z-20 gap-2">
+    <div class="flex gap-2">
+        <div class="bg-white dark:bg-slate-800 rounded-full px-4 py-2 shadow-md border-2 border-yellow-400">
+            <span class="text-lg font-bold text-yellow-600 dark:text-yellow-400" id="progressText">1 / 100</span>
         </div>
-        <button onclick="document.documentElement.classList.toggle('dark')" class="bg-white dark:bg-slate-800 p-2 rounded-full shadow-md border-2 border-purple-400 text-purple-500">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
-        </button>
-    </div>
-
-    <main class="w-full max-w-lg bg-white dark:bg-slate-800 rounded-3xl shadow-2xl p-6 border-b-8 border-gray-200 dark:border-slate-950 relative mt-12 transition-all">
-        <div class="flex justify-center mb-4">
-            <div id="categoryBadge" class="bg-blue-500 text-white px-6 py-1 rounded-full text-lg font-bold shadow-md uppercase">ALPHABET</div>
-        </div>
-
-        <div class="flex flex-col items-center justify-center min-h-[250px] mb-6">
-            <h1 id="mainWord" class="kids-font tracking-wide mb-2 text-center text-9xl">A</h1>
-            <p id="feedbackText" class="text-xl font-bold text-gray-400 text-center px-4 h-14 flex items-center justify-center">Click Listen, then Say it!</p>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4 mb-6">
-            <button onclick="listenToWord()" class="btn-bounce flex flex-col items-center justify-center bg-orange-400 text-white rounded-2xl py-6 shadow-lg border-b-4 border-orange-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
-                <span class="font-bold uppercase">LISTEN</span>
-            </button>
-            <button id="speakBtn" onclick="handleMicClick()" class="btn-bounce flex flex-col items-center justify-center bg-red-400 text-white rounded-2xl py-6 shadow-lg border-b-4 border-red-600 relative transition-all">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
-                <span id="micBtnText" class="font-bold uppercase">SAY IT</span>
-            </button>
-        </div>
-
-        <div class="flex items-center justify-between gap-4">
-            <button onclick="prevWord()" class="btn-bounce bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-300 rounded-full p-4 flex-1 font-bold">BACK</button>
-            <button onclick="nextWord()" class="btn-bounce bg-blue-500 text-white rounded-full p-4 flex-[2] font-bold shadow-lg border-b-4 border-blue-700">NEXT</button>
-        </div>
-    </main>
-
-    <div id="modal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-        <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl scale-0 transition-transform duration-300" id="modalContent">
-            <div class="text-6xl mb-4">🏆</div>
-            <h2 class="kids-font text-3xl text-green-600 mb-2">Great Job!</h2>
-            <p id="modalMsg" class="text-xl text-gray-600 dark:text-gray-300 mb-6"></p>
-            <button onclick="closeModal()" class="w-full bg-green-500 text-white rounded-2xl py-4 font-bold text-xl border-b-4 border-green-700">CONTINUE</button>
+        <div class="bg-white dark:bg-slate-800 rounded-full px-4 py-2 shadow-md border-2 border-green-400">
+            <span class="text-lg font-bold text-green-600 dark:text-green-400">⭐ <span id="starCount">0</span></span>
         </div>
     </div>
 
-    <script>
-        const words = [
-            ...Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZ").map(l => ({word: l, type: "Alphabet"})),
-            ...Array.from({length: 20}, (_, i) => ({word: (i+1).toString(), type: "Numbers"})),
-            ...["am","an","as","at","be","by","do","go","he","hi","if","in","is","it","me","my","no","of","oh","on","or","so","to","up","us","we"].map(w => ({word: w, type: "Words"})),
-            ...["cat","dog","hat","pig","sun","bus","red","big","hot","cup","bat","bed","box","can","cap","dad","fan","fox","gum","jet","leg","lid","log","mad","map","net","nut","pan","pen","pet","pot","rat","rug","sat","sit","tag","ten","top","tub","van","wet","wig","win","zip","bag","bug","dig","fit","get","hop","job","key","lap","ink","ice","owl","egg","cow"].map(w => ({word: w, type: "Words"}))
-        ];
+    <button onclick="document.documentElement.classList.toggle('dark')" class="bg-white dark:bg-slate-800 p-2 rounded-full shadow-md border-2 border-purple-400 text-purple-500">
+        🌙
+    </button>
+</div>
 
-        let currentIndex = 0;
-        let stars = 0;
-        let isListening = false;
-        let transcriptBuffer = "";
+<main id="mainCard" class="w-full max-w-lg bg-white dark:bg-slate-800 rounded-3xl shadow-2xl p-6 border-b-8 border-gray-200 dark:border-slate-950 relative mt-12 transition-all">
 
-        const mainWordEl = document.getElementById('mainWord');
-        const feedbackEl = document.getElementById('feedbackText');
-        const progressEl = document.getElementById('progressText');
-        const starEl = document.getElementById('starCount');
-        const categoryBadge = document.getElementById('categoryBadge');
-        const speakBtn = document.getElementById('speakBtn');
-        const micBtnText = document.getElementById('micBtnText');
+<div class="flex justify-center mb-4">
+    <div id="categoryBadge" class="bg-blue-500 text-white px-6 py-1 rounded-full text-lg font-bold shadow-md uppercase">
+        ALPHABET
+    </div>
+</div>
 
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playSfx(freq, dur = 0.2) {
-            const o = audioCtx.createOscillator();
-            const g = audioCtx.createGain();
-            o.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
-            o.connect(g); g.connect(audioCtx.destination);
-            o.start(); o.stop(audioCtx.currentTime + dur);
-        }
+<div class="flex flex-col items-center justify-center min-h-[250px] mb-6">
+    <h1 id="mainWord" class="kids-font text-9xl text-blue-500 text-center">A</h1>
+    <p id="feedbackText" class="text-xl font-bold text-gray-400 text-center h-14 flex items-center justify-center">
+        Click Listen, then Say it!
+    </p>
+</div>
 
-        const synth = window.speechSynthesis;
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        let recognition = null;
+<div class="grid grid-cols-2 gap-4 mb-6">
+    <button onclick="listenToWord()" class="btn-bounce bg-orange-400 text-white rounded-2xl py-6 shadow-lg border-b-4 border-orange-600 font-bold">
+        🔊 LISTEN
+    </button>
 
-        if (SpeechRecognition) {
-            recognition = new SpeechRecognition();
-            recognition.continuous = true;
-            recognition.interimResults = true;
-            recognition.lang = 'en-US';
+    <button id="speakBtn" onclick="startMic()" class="btn-bounce bg-red-400 text-white rounded-2xl py-6 shadow-lg border-b-4 border-red-600 font-bold">
+        🎤 SAY IT
+    </button>
+</div>
 
-            recognition.onresult = (e) => {
-                transcriptBuffer = Array.from(e.results)
-                    .map(result => result[0].transcript)
-                    .join('').toLowerCase().trim();
-                
-                const target = words[currentIndex].word.toLowerCase();
-                if (transcriptBuffer.includes(target)) {
-                    evaluateNow();
-                }
-            };
+<div class="flex items-center justify-between gap-4">
+    <button onclick="prevWord()" class="btn-bounce bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-300 rounded-full p-4 flex-1 font-bold">
+        BACK
+    </button>
+    <button onclick="nextWord()" class="btn-bounce bg-blue-500 text-white rounded-full p-4 flex-[2] font-bold shadow-lg border-b-4 border-blue-700">
+        NEXT
+    </button>
+</div>
 
-            recognition.onerror = () => stopMicUI();
-            recognition.onend = () => { if (isListening) recognition.start(); };
-        }
+</main>
 
-        function handleMicClick() {
-            if (isListening) {
-                evaluateNow();
-            } else {
-                startMic();
-            }
-        }
+<script>
 
-        function startMic() {
-            if (!recognition) return;
-            isListening = true;
-            transcriptBuffer = "";
-            speakBtn.classList.add('mic-active');
-            micBtnText.textContent = "STOP & CHECK";
-            feedbackEl.textContent = "Listening...";
-            playSfx(440, 0.1);
-            recognition.start();
-        }
+/* ========================
+   WORD DATA
+======================== */
 
-        function evaluateNow() {
-            if (!isListening) return;
-            const target = words[currentIndex].word.toLowerCase();
-            const heard = transcriptBuffer;
-            
-            stopMicUI();
+const words = [
+...Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZ").map(l=>({word:l,type:"Alphabet"})),
+...Array.from({length:20},(_,i)=>({word:(i+1).toString(),type:"Numbers"})),
+..."cat dog sun hat cup red big box pen bus pig map fan log run zip bat bed cap can dad fox gum".split(" ").map(w=>({word:w,type:"Words"}))
+];
 
-            // Lenient matching for kids
-            const numMap = {"one":"1","two":"2","three":"3","four":"4","five":"5","six":"6","seven":"7","eight":"8","nine":"9","ten":"10","eleven":"11","twelve":"12","thirteen":"13","fourteen":"14","fifteen":"15","sixteen":"16","seventeen":"17","eighteen":"18","nineteen":"19","twenty":"20"};
-            const isMatch = heard.includes(target) || (numMap[heard] && numMap[heard] === target) || heard.split(' ').some(w => w === target);
+let currentIndex = 0;
+let stars = 0;
 
-            if (isMatch) {
-                handleSuccess();
-            } else {
-                feedbackEl.textContent = heard ? `I heard "${heard}". Try again!` : "I didn't hear anything. Try again!";
-                playSfx(200, 0.3);
-            }
-        }
+/* ========================
+   DISPLAY
+======================== */
 
-        function stopMicUI() {
-            isListening = false;
-            recognition?.stop();
-            speakBtn.classList.remove('mic-active');
-            micBtnText.textContent = "SAY IT";
-        }
+function updateDisplay(){
+    const c = words[currentIndex];
+    document.getElementById("mainWord").textContent = c.word;
+    document.getElementById("categoryBadge").textContent = c.type;
+    document.getElementById("progressText").textContent =
+        `${currentIndex+1} / ${words.length}`;
+    document.getElementById("feedbackText").textContent =
+        "Click Listen, then Say it!";
+    document.getElementById("feedbackText").className =
+        "text-xl font-bold text-gray-400 text-center h-14 flex items-center justify-center";
+}
 
-        function handleSuccess() {
-            stars++;
-            starEl.textContent = stars;
-            playSfx(880, 0.4);
-            document.getElementById('modalMsg').textContent = `Correct! You said "${words[currentIndex].word}"`;
-            document.getElementById('modal').classList.remove('hidden');
-            setTimeout(() => document.getElementById('modalContent').classList.add('scale-100'), 10);
-        }
+function nextWord(){
+    if(currentIndex < words.length-1){
+        currentIndex++;
+        updateDisplay();
+    }
+}
 
-        function updateDisplay() {
-            stopMicUI();
-            const c = words[currentIndex];
-            mainWordEl.textContent = c.word;
-            categoryBadge.textContent = c.type;
-            progressEl.textContent = `${currentIndex + 1} / ${words.length}`;
-            feedbackEl.textContent = "Click Listen, then Say it!";
-            
-            const badges = {"Alphabet": "bg-blue-500", "Numbers": "bg-green-500", "Words": "bg-purple-500"};
-            categoryBadge.className = `${badges[c.type]} text-white px-6 py-1 rounded-full text-lg font-bold shadow-md uppercase`;
-            
-            const colors = ['text-blue-500', 'text-purple-500', 'text-pink-500', 'text-indigo-500', 'text-green-500', 'text-orange-500'];
-            mainWordEl.className = `kids-font tracking-wide mb-2 text-center text-9xl ${colors[currentIndex % colors.length]}`;
-        }
+function prevWord(){
+    if(currentIndex>0){
+        currentIndex--;
+        updateDisplay();
+    }
+}
 
-        function listenToWord() {
-            synth.cancel();
-            const u = new SpeechSynthesisUtterance(words[currentIndex].word.toLowerCase());
-            u.rate = 0.75;
-            u.pitch = 1.2;
-            synth.speak(u);
-        }
+/* ========================
+   TEXT TO SPEECH (NO "CAPITAL")
+======================== */
 
-        function nextWord() {
-            if (currentIndex < words.length - 1) { currentIndex++; updateDisplay(); }
-        }
+function listenToWord(){
+    speechSynthesis.cancel();
 
-        function prevWord() {
-            if (currentIndex > 0) { currentIndex--; updateDisplay(); }
-        }
+    let word = words[currentIndex].word;
 
-        function closeModal() {
-            document.getElementById('modalContent').classList.remove('scale-100');
-            setTimeout(() => {
-                document.getElementById('modal').classList.add('hidden');
-                nextWord();
-            }, 300);
-        }
+    // Prevent saying "capital"
+    if(word.length === 1 && isNaN(word)){
+        word = word.toLowerCase();
+    }
 
-        window.onload = updateDisplay;
-    </script>
+    const u = new SpeechSynthesisUtterance(word);
+    u.rate = 0.9;
+    u.pitch = 1.1;
+    speechSynthesis.speak(u);
+}
+
+/* ========================
+   PRO MIC ENGINE
+======================== */
+
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = null;
+let isListening = false;
+let silenceTimer = null;
+
+if(SpeechRecognition){
+    recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+    recognition.continuous = false;
+    recognition.maxAlternatives = 3;
+
+    recognition.onresult = (event)=>{
+        clearTimeout(silenceTimer);
+        const result = event.results[0][0];
+        const spoken = result.transcript.toLowerCase().trim();
+        const confidence = result.confidence;
+        evaluateSpeech(spoken,confidence);
+    };
+
+    recognition.onend = ()=> stopMicUI();
+    recognition.onerror = ()=> {
+        stopMicUI();
+        showError("Mic error. Try again!");
+    };
+}
+
+function startMic(){
+    if(!recognition || isListening) return;
+
+    isListening = true;
+    document.getElementById("speakBtn").classList.add("mic-active");
+    document.getElementById("feedbackText").textContent = "Listening...";
+
+    try{
+        recognition.start();
+        silenceTimer = setTimeout(()=> recognition.stop(),3000);
+    }catch(e){}
+}
+
+function stopMicUI(){
+    isListening = false;
+    document.getElementById("speakBtn").classList.remove("mic-active");
+}
+
+function evaluateSpeech(spoken,confidence){
+
+    const target = words[currentIndex].word.toLowerCase();
+
+    const numMap = {
+        "one":"1","two":"2","three":"3","four":"4","five":"5",
+        "six":"6","seven":"7","eight":"8","nine":"9","ten":"10",
+        "eleven":"11","twelve":"12","thirteen":"13","fourteen":"14",
+        "fifteen":"15","sixteen":"16","seventeen":"17","eighteen":"18",
+        "nineteen":"19","twenty":"20"
+    };
+
+    let match = false;
+
+    if(spoken === target) match = true;
+    if(numMap[spoken] === target) match = true;
+    if(confidence < 0.65) match = false;
+
+    if(match){
+        stars++;
+        document.getElementById("starCount").textContent = stars;
+        document.getElementById("feedbackText").textContent = "Correct! 🎉";
+        document.getElementById("feedbackText").classList.add("text-green-500");
+        document.getElementById("mainCard").classList.add("glow-success");
+
+        setTimeout(()=>{
+            document.getElementById("mainCard").classList.remove("glow-success");
+            nextWord();
+        },1000);
+    }else{
+        showError(`I heard "${spoken}". Try again!`);
+    }
+}
+
+function showError(msg){
+    document.getElementById("feedbackText").textContent = msg;
+    document.getElementById("feedbackText").classList.add("text-red-500");
+    document.getElementById("mainCard").classList.add("shake");
+    setTimeout(()=>{
+        document.getElementById("mainCard").classList.remove("shake");
+    },400);
+}
+
+updateDisplay();
+
+</script>
 </body>
 </html>
-
