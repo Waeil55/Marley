@@ -3,355 +3,514 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Marley's World - Pre-K Edition</title>
+    <title>Marley Shorts</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Marley">
+    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/Waeil55/Marley/main/Y.JPG">
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Quicksand:wght@700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
         :root {
-            --primary: #FF9800;
-            --font-main: 'Bubblegum Sans', cursive;
+            --safe-top: env(safe-area-inset-top);
+            --safe-bottom: env(safe-area-inset-bottom);
+            --yt-red: #ff0000;
         }
         body {
-            font-family: var(--font-main);
-            background-color: #FFFDE7;
-            color: #4E342E;
-            overflow-x: hidden;
+            font-family: 'Roboto', sans-serif;
+            background-color: #000;
+            color: white;
+            margin: 0;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            overscroll-behavior-y: none;
+            -webkit-user-select: none;
             user-select: none;
-            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
-        .bubble-btn {
-            border-radius: 35px;
-            box-shadow: 0 8px 0 rgba(0,0,0,0.1);
-            transition: all 0.1s;
+
+        .shorts-container {
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
         }
-        .bubble-btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+        .shorts-container::-webkit-scrollbar { display: none; }
+
+        .short-card {
+            height: 100vh;
+            width: 100vw;
+            scroll-snap-align: start;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background: #000;
+            will-change: transform;
         }
-        .rainbow-text {
-            background-image: linear-gradient(to left, #ec4899, #8b5cf6, #3b82f6, #10b981, #f59e0b, #ef4444);
-            -webkit-background-clip: text;
-            color: transparent;
+
+        /* High Quality Background Animation */
+        .video-bg {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 50%, var(--accent, #6366f1) 0%, #000 85%);
+            opacity: 0.7;
+            z-index: 0;
+            animation: pulse-bg 8s infinite alternate ease-in-out;
         }
-        .mic-pulse {
-            animation: pulse-red 1.5s infinite;
+        @keyframes pulse-bg {
+            from { transform: scale(1); opacity: 0.5; }
+            to { transform: scale(1.1); opacity: 0.8; }
         }
-        @keyframes pulse-red {
-            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+
+        /* YouTube Sidebar UI - Accurate Layout */
+        .sidebar {
+            position: absolute;
+            right: 8px;
+            bottom: calc(110px + var(--safe-bottom));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            z-index: 100;
         }
-        .hidden-view { display: none; }
-        .confetti {
-            position: fixed;
-            width: 8px; height: 8px;
+        .sidebar-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .icon-wrap { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; }
+        .btn-label { font-size: 12px; font-weight: 500; text-shadow: 0 1px 2px rgba(0,0,0,0.9); }
+
+        .channel-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            position: relative;
+            margin-bottom: 8px;
+        }
+        .avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        .sub-plus {
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--yt-red);
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 900;
+            border: 2px solid #000;
+        }
+
+        /* Bottom UI - Accurate Layout */
+        .bottom-overlay {
+            position: absolute;
+            bottom: calc(25px + var(--safe-bottom));
+            left: 12px;
+            right: 70px;
             z-index: 100;
             pointer-events: none;
         }
+        .user-info {
+            font-weight: 700;
+            font-size: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            pointer-events: auto;
+        }
+        .sub-chip {
+            background: #fff;
+            color: #000;
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .caption {
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 14px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+        }
+        .music-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            background: rgba(0,0,0,0.4);
+            width: fit-content;
+            padding: 5px 12px;
+            border-radius: 4px;
+            backdrop-filter: blur(4px);
+        }
+
+        /* Learning & Games */
+        .canvas-main { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; width: 100%; padding: 0 30px; }
+        .visual-emoji { font-size: 10rem; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.7)); font-family: 'Quicksand', sans-serif; margin-bottom: 30px; }
+        .grid-options { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; max-width: 360px; }
+        .bubble-opt { background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(30px); border: 1.5px solid rgba(255, 255, 255, 0.2); border-radius: 18px; padding: 20px 10px; font-weight: 700; text-align: center; font-size: 1.2rem; font-family: 'Quicksand', sans-serif; transition: transform 0.1s; }
+        .bubble-opt:active { transform: scale(0.94); background: rgba(255,255,255,0.2); }
+        .bubble-opt.correct { background: #22c55e; border-color: #4ade80; }
+        .bubble-opt.wrong { background: #ef4444; border-color: #f87171; }
+
+        .game-target { 
+            position: absolute; 
+            z-index: 200; 
+            font-size: 7.5rem; 
+            cursor: pointer; 
+            filter: drop-shadow(0 15px 30px rgba(0,0,0,0.6)); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            width: 200px; 
+            height: 200px;
+            touch-action: none;
+            will-change: transform, left, top;
+            transition: left 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), top 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        
+        .floating-bubble { 
+            border-radius: 50%; 
+            background: rgba(255,255,255,0.4); 
+            border: 4px solid rgba(255,255,255,0.6); 
+            backdrop-filter: blur(15px); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 3.5rem; 
+            position: absolute; 
+            cursor: pointer; 
+            animation: fly-up var(--d) linear forwards; 
+            touch-action: none;
+            will-change: transform;
+        }
+        @keyframes fly-up { 
+            from { transform: translateY(110vh) rotate(0deg); } 
+            to { transform: translateY(-25vh) rotate(360deg); } 
+        }
+
+        /* Top Progress Bar */
+        .story-progress { position: fixed; top: var(--safe-top); left: 0; width: 100%; display: flex; gap: 4px; padding: 12px; z-index: 300; }
+        .prog-unit { flex: 1; height: 3px; background: rgba(255,255,255,0.3); border-radius: 2px; overflow: hidden; }
+        .prog-bar { height: 100%; width: 0%; background: #fff; }
+
+        /* Remix Disc Rotation */
+        .remix-disc { width: 34px; height: 34px; border-radius: 8px; border: 2.5px solid #fff; animation: disc-spin 3s linear infinite; }
+        @keyframes disc-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .confetti-pop { position: absolute; pointer-events: none; z-index: 1000; animation: explode 1s ease-out forwards; }
+        @keyframes explode { 0% { transform: translate(0,0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) rotate(360deg) scale(0); opacity: 0; } }
+
+        .shake-it { animation: vibrate 0.1s linear infinite; }
+        @keyframes vibrate { 0% { transform: scale(1.5) rotate(1deg); } 50% { transform: scale(1.5) rotate(-1deg); } 100% { transform: scale(1.5) rotate(1deg); } }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body>
 
-    <div id="confetti-layer"></div>
+    <div class="story-progress" id="story-progress"></div>
+    <div id="shorts-feed" class="shorts-container"></div>
 
-    <header class="p-4 bg-white rounded-b-[40px] shadow-sm sticky top-0 z-40">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-2 cursor-pointer" onclick="goHome()">
-                <div class="w-12 h-12 bg-orange-100 rounded-xl p-1 border-2 border-orange-400">
-                    <img src="https://github.com/Waeil55/Marley/blob/main/M.PNG" class="w-full h-full object-contain" alt="M">
-                </div>
-                <h1 class="text-2xl font-black text-orange-500">MARLEY</h1>
-            </div>
-            <div class="flex items-center gap-2">
-                <div class="bg-yellow-100 px-4 py-1 rounded-full border-2 border-yellow-400 flex items-center gap-2">
-                    <span class="text-xl">⭐</span>
-                    <span id="global-score" class="text-xl font-black text-yellow-700">0</span>
-                </div>
-                <button onclick="goHome()" id="home-btn" class="hidden-view w-10 h-10 bg-sky-100 text-sky-600 rounded-xl flex items-center justify-center border-2 border-sky-400">
-                    <i data-lucide="home"></i>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <main class="flex-grow p-4 max-w-4xl mx-auto w-full">
-        <!-- Main Hub -->
-        <div id="home-view" class="space-y-6">
-            <div class="text-center py-2">
-                <h2 class="text-3xl font-black rainbow-text italic">Time to Play!</h2>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div onclick="startActivity('speech')" class="bubble-btn bg-red-400 p-6 text-white text-center cursor-pointer border-4 border-red-200 col-span-2">
-                    <div class="text-5xl mb-1">🎤</div>
-                    <span class="text-2xl font-black uppercase tracking-widest">Speech Lab</span>
-                </div>
-                <div onclick="startActivity('listening')" class="bubble-btn bg-indigo-400 p-6 text-white text-center cursor-pointer border-4 border-indigo-200 col-span-2">
-                    <div class="text-5xl mb-1">👂</div>
-                    <span class="text-2xl font-black uppercase tracking-widest">Listen & Pick</span>
-                </div>
-                <div onclick="startActivity('abc')" class="bubble-btn bg-pink-400 p-5 text-white text-center cursor-pointer border-4 border-pink-200">
-                    <div class="text-4xl mb-1">ABC</div>
-                    <span class="text-lg font-black uppercase">Letters</span>
-                </div>
-                <div onclick="startActivity('numbers')" class="bubble-btn bg-blue-400 p-5 text-white text-center cursor-pointer border-4 border-blue-200">
-                    <div class="text-4xl mb-1">123</div>
-                    <span class="text-lg font-black uppercase">Numbers</span>
-                </div>
-                <div onclick="startActivity('animals')" class="bubble-btn bg-orange-400 p-5 text-white text-center cursor-pointer border-4 border-orange-200">
-                    <div class="text-4xl mb-1">🐶</div>
-                    <span class="text-lg font-black uppercase">Animals</span>
-                </div>
-                <div onclick="startActivity('fruits')" class="bubble-btn bg-green-400 p-5 text-white text-center cursor-pointer border-4 border-green-200">
-                    <div class="text-4xl mb-1">🍎</div>
-                    <span class="text-lg font-black uppercase">Fruits</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Activity View -->
-        <div id="activity-view" class="hidden-view space-y-4">
-            <div class="w-full bg-gray-200 h-3 rounded-full overflow-hidden mb-2">
-                <div id="progress-bar" class="bg-orange-400 h-full transition-all" style="width: 0%"></div>
-            </div>
-            <div class="text-center font-black text-gray-400 text-sm mb-4">
-                Question <span id="current-count">1</span> of 150
-            </div>
-
-            <div id="game-card" class="bg-white rounded-[50px] p-8 shadow-xl border-b-8 border-gray-100 text-center relative min-h-[400px] flex flex-col justify-center">
-                <div id="task-title" class="text-2xl font-black text-orange-500 mb-4 uppercase"></div>
-                
-                <div id="visual-content" class="text-9xl mb-8 flex justify-center items-center"></div>
-
-                <div id="interaction-area">
-                    <div id="options-grid" class="grid grid-cols-2 gap-4"></div>
-                    
-                    <div id="mic-area" class="hidden flex flex-col items-center gap-4">
-                        <button id="mic-btn" onclick="toggleMic()" class="w-24 h-24 rounded-full bg-red-100 border-4 border-red-200 text-red-500 flex items-center justify-center shadow-lg active:scale-90 transition-all">
-                            <i data-lucide="mic" class="w-12 h-12"></i>
-                        </button>
-                        <p id="mic-status" class="text-xl font-black text-red-400">Tap & Say it!</p>
-                        <p id="heard-text" class="text-lg text-gray-300 italic font-bold h-6"></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Final Win View -->
-        <div id="win-view" class="hidden-view py-16 text-center">
-            <div class="text-9xl mb-6">👑</div>
-            <h2 class="text-5xl font-black text-orange-500 mb-4">MARLEY PRIDE!</h2>
-            <p class="text-2xl font-black text-gray-500 mb-10">You finished 150 lessons!</p>
-            <button onclick="goHome()" class="bubble-btn bg-orange-500 text-white px-10 py-5 text-2xl font-black border-b-8 border-orange-700">PLAY AGAIN</button>
-        </div>
-    </main>
+    <!-- YouTube Nav Bar -->
+    <nav class="fixed bottom-0 w-full h-[65px] bg-black border-t border-white/10 flex justify-around items-center z-[500] pb-[var(--safe-bottom)]">
+        <div class="flex flex-col items-center"><i data-lucide="home" class="w-6 h-6 text-white"></i><span class="text-[10px] mt-1 font-bold text-white">Home</span></div>
+        <div class="flex flex-col items-center"><i data-lucide="compass" class="w-6 h-6"></i><span class="text-[10px] mt-1 font-bold">Shorts</span></div>
+        <div class="w-12 h-12 border border-white/40 rounded-full flex items-center justify-center"><i data-lucide="plus" class="w-8 h-8"></i></div>
+        <div class="flex flex-col items-center opacity-40"><i data-lucide="play-square" class="w-6 h-6"></i><span class="text-[10px] mt-1 font-bold">Subscriptions</span></div>
+        <div class="flex flex-col items-center opacity-40"><i data-lucide="user" class="w-6 h-6"></i><span class="text-[10px] mt-1 font-bold">You</span></div>
+    </nav>
 
     <script>
-        // Core Assets (Pre-K Friendly)
-        const ABC_POOL = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".split("");
-        const NUM_POOL = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"];
-        const ANIMAL_POOL = [
-            {e:"🐶",n:"Dog"},{e:"🐱",n:"Cat"},{e:"🐭",n:"Mouse"},{e:"🐰",n:"Bunny"},{e:"🦊",n:"Fox"},
-            {e:"🐻",n:"Bear"},{e:"🐼",n:"Panda"},{e:"🦁",n:"Lion"},{e:"🐮",n:"Cow"},{e:"🐷",n:"Pig"},
-            {e:"🐸",n:"Frog"},{e:"🐵",n:"Monkey"},{e:"🐔",n:"Hen"},{e:"🐧",n:"Penguin"},{e:"🐢",n:"Turtle"}
-        ];
-        const FRUIT_POOL = [
-            {e:"🍎",n:"Apple"},{e:"🍌",n:"Banana"},{e:"🍊",n:"Orange"},{e:"🍐",n:"Pear"},{e:"🍓",n:"Berry"},
-            {e:"🍇",n:"Grape"},{e:"🍉",n:"Melon"},{e:"🍒",n:"Cherry"},{e:"🍍",n:"Pine"},{e:"🍋",n:"Lemon"}
-        ];
+        const ANIMALS = {"🐶":"Dog","🐱":"Cat","🐻":"Bear","🦁":"Lion","🐮":"Cow","🐷":"Pig","🐸":"Frog","🐔":"Hen","🐦":"Bird","🦆":"Duck","🦇":"Bat","🐺":"Wolf","🦌":"Deer","🐟":"Fish","🐐":"Goat","🦀":"Crab","🐝":"Bee","🐜":"Ant","🦭":"Seal","🦖":"Dino"};
+        const FOOD = {"🍐":"Pear","Kiwi":"Kiwi","🌽":"Corn","🥩":"Meat","🍰":"Cake","🥧":"Pie","🥚":"Egg","🥣":"Soup","🍚":"Rice","🥛":"Milk","🌮":"Taco","🥜":"Nut","🫐":"Berry","🥯":"Bun"};
+        const NUMS = ["Zero","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen","Twenty"];
+        const GAME_DATA = {"🍐":"Pear","⚽":"Ball","⭐":"Star","🧁":"Cake","🥚":"Egg","🌽":"Corn","🌮":"Taco","🥣":"Soup"};
 
-        const STATE = {
-            score: parseInt(localStorage.getItem('marley_pk_stars') || 0),
-            mode: '',
-            questions: [],
-            currentIndex: 0,
-            isListening: false,
-            recognition: null
+        let POOL = [];
+        let state = {
+            score: parseInt(localStorage.getItem('m_v10_stars') || 0),
+            idx: -1,
+            canAns: true,
+            timers: [],
+            voices: []
         };
 
-        // --- Voice ---
-        function speak(text) {
-            window.speechSynthesis.cancel();
-            const msg = new SpeechSynthesisUtterance(text);
-            msg.rate = 0.9;
-            msg.pitch = 1.3;
-            window.speechSynthesis.speak(msg);
+        function buildPool() {
+            let temp = [];
+            Object.keys(ANIMALS).forEach(e => temp.push({e, n: ANIMALS[e], c: "#6366f1"}));
+            Object.keys(FOOD).forEach(e => temp.push({e, n: FOOD[e], c: "#ef4444"}));
+            for(let i=1; i<=20; i++) temp.push({e:i, n: NUMS[i], c: "#10b981"});
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('').forEach(l => temp.push({e:l, n: l, c: "#f59e0b"}));
+            temp.sort(() => Math.random() - 0.5);
+            while(POOL.length < 400) POOL.push({...temp[POOL.length % temp.length]});
         }
 
-        // --- Advanced Mic ---
-        function initMic() {
-            if (!('webkitSpeechRecognition' in window)) return;
-            STATE.recognition = new webkitSpeechRecognition();
-            STATE.recognition.lang = 'en-US';
-            STATE.recognition.onstart = () => {
-                STATE.isListening = true;
-                document.getElementById('mic-btn').classList.add('mic-pulse', 'bg-red-200');
-                document.getElementById('mic-status').innerText = "Marley is listening...";
-            };
-            STATE.recognition.onend = () => {
-                STATE.isListening = false;
-                document.getElementById('mic-btn').classList.remove('mic-pulse', 'bg-red-200');
-                document.getElementById('mic-status').innerText = "Tap & Say it!";
-            };
-            STATE.recognition.onresult = (e) => {
-                const heard = e.results[0][0].transcript.toLowerCase();
-                document.getElementById('heard-text').innerText = `You said: ${heard}`;
-                checkSpeech(heard);
-            };
+        function init() {
+            buildPool();
+            const feed = document.getElementById('shorts-feed');
+            const prog = document.getElementById('story-progress');
+
+            POOL.forEach((item, i) => {
+                const card = document.createElement('div');
+                card.className = 'short-card';
+                card.id = `card-${i}`;
+                feed.appendChild(card);
+                prog.innerHTML += `<div class="prog-unit"><div id="fill-${i}" class="prog-bar"></div></div>`;
+            });
+
+            lucide.createIcons();
+            const setVoices = () => { state.voices = window.speechSynthesis.getVoices(); };
+            setVoices();
+            window.speechSynthesis.onvoiceschanged = setVoices;
+
+            feed.addEventListener('scroll', handleScroll, {passive: true});
+            handleScroll();
         }
 
-        function toggleMic() {
-            if (!STATE.recognition) return;
-            STATE.isListening ? STATE.recognition.stop() : STATE.recognition.start();
-        }
+        function renderCard(i) {
+            const card = document.getElementById(`card-${i}`);
+            if (card.innerHTML !== '') return;
 
-        // --- Data Gen (150 Items) ---
-        function build150(source, type) {
-            let result = [];
-            while(result.length < 150) {
-                let shuffled = [...source].sort(() => 0.5 - Math.random());
-                shuffled.forEach(item => {
-                    if(result.length >= 150) return;
-                    let correct = (typeof item === 'string') ? item : item.n;
-                    let display = (typeof item === 'string') ? item : item.e;
-                    
-                    // Generate options
-                    let pool = (typeof item === 'string') ? source : source.map(x => x.n);
-                    let others = pool.filter(x => x !== correct).sort(() => 0.5 - Math.random()).slice(0, 3);
-                    let opts = [correct, ...others].sort(() => 0.5 - Math.random());
-                    
-                    result.push({ d: display, n: correct, opts: opts });
-                });
-            }
-            return result;
-        }
-
-        // --- Game Flow ---
-        function goHome() {
-            document.getElementById('activity-view').classList.add('hidden-view');
-            document.getElementById('win-view').classList.add('hidden-view');
-            document.getElementById('home-btn').classList.add('hidden-view');
-            document.getElementById('home-view').classList.remove('hidden-view');
-            speak("Welcome back!");
-        }
-
-        function startActivity(type) {
-            STATE.mode = type;
-            STATE.currentIndex = 0;
-            
-            if(type === 'abc') STATE.questions = build150(ABC_POOL);
-            else if(type === 'numbers') STATE.questions = build150(NUM_POOL);
-            else if(type === 'animals') STATE.questions = build150(ANIMAL_POOL);
-            else if(type === 'fruits') STATE.questions = build150(FRUIT_POOL);
-            else if(type === 'listening') {
-                const mega = [...ABC_POOL.slice(0,10), ...NUM_POOL, ...ANIMAL_POOL.map(x=>x.n)];
-                STATE.questions = build150(mega);
-            }
-            else if(type === 'speech') {
-                const mega = [...ANIMAL_POOL, ...FRUIT_POOL];
-                STATE.questions = build150(mega);
-            }
-
-            document.getElementById('home-view').classList.add('hidden-view');
-            document.getElementById('activity-view').classList.remove('hidden-view');
-            document.getElementById('home-btn').classList.remove('hidden-view');
-            renderQ();
-        }
-
-        function renderQ() {
-            const q = STATE.questions[STATE.currentIndex];
-            const title = document.getElementById('task-title');
-            const visual = document.getElementById('visual-content');
-            const grid = document.getElementById('options-grid');
-            const mic = document.getElementById('mic-area');
-            
-            document.getElementById('progress-bar').style.width = `${(STATE.currentIndex/150)*100}%`;
-            document.getElementById('current-count').innerText = STATE.currentIndex + 1;
-            document.getElementById('heard-text').innerText = '';
-            
-            grid.innerHTML = '';
-            mic.classList.add('hidden');
-
-            if(STATE.mode === 'listening') {
-                title.innerText = "Listen & Find!";
-                visual.innerHTML = `<button onclick="speak('${q.n}')" class="w-32 h-32 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-500"><i data-lucide="volume-2" class="w-16 h-16"></i></button>`;
-                speak(`Can you find ${q.n}?`);
-            } else if(STATE.mode === 'speech') {
-                title.innerText = "Can you say it?";
-                visual.innerText = q.d;
-                mic.classList.remove('hidden');
-                speak(`Can you say ${q.n}?`);
+            const item = POOL[i];
+            if (i > 0 && i % 4 === 3) {
+                const games = ['catch', 'pop', 'tap'];
+                const type = games[i % games.length];
+                const emojis = Object.keys(GAME_DATA);
+                const emoji = emojis[i % emojis.length];
+                card.dataset.type = "game";
+                card.dataset.game = type;
+                card.dataset.emoji = emoji;
+                card.innerHTML = `
+                    <div class="video-bg" style="--accent: #ff0055"></div>
+                    <div class="canvas-main">
+                        <h2 class="text-5xl font-black italic mb-2 tracking-tighter drop-shadow-lg">SPEED CHALLENGE</h2>
+                        <div id="game-zone-${i}" class="absolute inset-0 w-full h-full pointer-events-none"></div>
+                    </div>
+                    ${getSidebar()}
+                    ${getBottom(`Mini Game`, `Marley says: Quick! Catch the ${GAME_DATA[emoji]}!`)}
+                `;
             } else {
-                title.innerText = "Find the match!";
-                visual.innerText = q.d;
-                speak(`Find the ${q.n}`);
-            }
-
-            if(q.opts && STATE.mode !== 'speech') {
-                q.opts.forEach(opt => {
-                    const btn = document.createElement('button');
-                    btn.className = "bubble-btn bg-white border-4 border-gray-100 p-6 text-3xl font-black text-orange-600";
-                    btn.innerText = opt;
-                    btn.onclick = () => checkAns(opt);
-                    grid.appendChild(btn);
-                });
-            }
-            lucide.createIcons();
-        }
-
-        function checkAns(val) {
-            if(val === STATE.questions[STATE.currentIndex].n) winQ();
-            else speak("Try again!");
-        }
-
-        function checkSpeech(heard) {
-            const target = STATE.questions[STATE.currentIndex].n.toLowerCase();
-            if(heard.includes(target)) winQ();
-            else speak(`I heard ${heard}. Try again!`);
-        }
-
-        function winQ() {
-            STATE.score += 5;
-            localStorage.setItem('marley_pk_stars', STATE.score);
-            document.getElementById('global-score').innerText = STATE.score;
-            
-            popConfetti();
-            const praises = ["Yay!", "Super!", "Good job!", "Marley is happy!", "Wow!"];
-            speak(praises[Math.floor(Math.random()*praises.length)]);
-
-            setTimeout(() => {
-                if(STATE.currentIndex < 149) {
-                    STATE.currentIndex++;
-                    renderQ();
-                } else {
-                    document.getElementById('activity-view').classList.add('hidden-view');
-                    document.getElementById('win-view').classList.remove('hidden-view');
-                    speak("You are a superstar!");
+                let opts = [item];
+                while(opts.length < 4) {
+                    let r = POOL[Math.floor(Math.random()*POOL.length)];
+                    if(!opts.find(o => o.n === r.n)) opts.push(r);
                 }
-            }, 800);
+                opts.sort(() => Math.random() - 0.5);
+                card.innerHTML = `
+                    <div class="video-bg" style="--accent: ${item.c}"></div>
+                    <div class="canvas-main">
+                        <div class="visual-emoji">${item.e}</div>
+                        <div class="grid-options">
+                            ${opts.map(o => `<button onclick="checkAns(${i}, '${o.n}', '${item.n}', this)" class="bubble-opt">${o.n}</button>`).join('')}
+                        </div>
+                    </div>
+                    ${getSidebar()}
+                    ${getBottom(`Marley Learn`, `Find the ${item.n}!`)}
+                `;
+            }
+            lucide.createIcons();
         }
 
-        function popConfetti() {
-            const colors = ['#f00','#0f0','#00f','#ff0','#f0f'];
-            for(let i=0; i<15; i++) {
-                const c = document.createElement('div');
-                c.className = 'confetti';
-                c.style.left = Math.random() * 100 + 'vw';
-                c.style.top = '-10px';
-                c.style.backgroundColor = colors[Math.floor(Math.random()*5)];
-                document.getElementById('confetti-layer').appendChild(c);
-                c.animate([{transform:'translateY(0)',opacity:1},{transform:'translateY(100vh)',opacity:0}],{duration:1000}).onfinish=()=>c.remove();
+        function getSidebar() {
+            return `
+                <div class="sidebar">
+                    <div class="channel-avatar"><img src="https://raw.githubusercontent.com/Waeil55/Marley/main/Y.JPG" class="avatar-img"><div class="sub-plus">+</div></div>
+                    <div class="sidebar-btn"><div class="icon-wrap"><i data-lucide="thumbs-up" class="w-8 h-8 fill-white"></i></div><span class="btn-label">12K</span></div>
+                    <div class="sidebar-btn"><div class="icon-wrap"><i data-lucide="thumbs-down" class="w-8 h-8"></i></div><span class="btn-label">Dislike</span></div>
+                    <div class="sidebar-btn"><div class="icon-wrap"><i data-lucide="message-square" class="w-8 h-8 fill-white"></i></div><span class="btn-label">421</span></div>
+                    <div class="sidebar-btn"><div class="icon-wrap"><i data-lucide="share-2" class="w-8 h-8 fill-white"></i></div><span class="btn-label">Share</span></div>
+                    <div class="remix-disc"><img src="https://raw.githubusercontent.com/Waeil55/Marley/main/Y.JPG" class="w-full h-full object-cover rounded-md"></div>
+                </div>
+            `;
+        }
+
+        function getBottom(title, desc) {
+            return `
+                <div class="bottom-overlay">
+                    <div class="user-info">
+                        <div class="w-8 h-8 rounded-full overflow-hidden border border-white/20"><img src="https://raw.githubusercontent.com/Waeil55/Marley/main/Y.JPG" class="w-full h-full object-cover"></div>
+                        @marley_world <span class="sub-chip">Subscribe</span>
+                    </div>
+                    <div class="caption">${desc}</div>
+                    <div class="music-info"><i data-lucide="music" class="w-4 h-4 text-white"></i><marquee class="w-32">Original Sound - Marley Kids Fun</marquee></div>
+                </div>
+            `;
+        }
+
+        function handleScroll() {
+            const feed = document.getElementById('shorts-feed');
+            const idx = Math.round(feed.scrollTop / window.innerHeight);
+            if(idx !== state.idx) {
+                state.timers.forEach(t => clearInterval(t));
+                state.timers = [];
+                state.idx = idx;
+                state.canAns = true;
+                
+                document.querySelectorAll('.short-card').forEach((c, i) => {
+                    if (Math.abs(i - idx) > 1) c.innerHTML = '';
+                    else renderCard(i);
+                });
+
+                document.querySelectorAll('.prog-bar').forEach((f, i) => f.style.width = i <= idx ? '100%' : '0');
+
+                const card = document.getElementById(`card-${idx}`);
+                // START GAME ASAP
+                if(card && card.dataset.type === "game") startGame(idx, card.dataset.game, card.dataset.emoji);
+                
+                speak(idx);
             }
         }
 
-        window.onload = () => {
-            document.getElementById('global-score').innerText = STATE.score;
-            initMic();
-            lucide.createIcons();
-        };
+        function startGame(idx, type, emoji) {
+            const zone = document.getElementById(`game-zone-${idx}`);
+            if(!zone) return;
+            zone.innerHTML = '';
+            zone.style.pointerEvents = 'auto';
+
+            if(type === 'catch') {
+                const obj = document.createElement('div');
+                obj.className = 'game-target';
+                obj.innerHTML = emoji;
+                obj.style.left = '50%';
+                obj.style.top = '50%';
+                obj.onpointerdown = (e) => { e.preventDefault(); win(idx, obj); };
+                zone.appendChild(obj);
+                const move = () => {
+                    obj.style.left = (Math.random() * (window.innerWidth - 200) + 10) + 'px';
+                    obj.style.top = (Math.random() * (window.innerHeight * 0.45) + (window.innerHeight * 0.2)) + 'px';
+                    obj.style.transform = `rotate(${Math.random() * 90 - 45}deg)`;
+                };
+                state.timers.push(setInterval(move, 400));
+                move();
+            } 
+            else if(type === 'pop') {
+                const gen = () => {
+                    if(zone.children.length > 10) return;
+                    const b = document.createElement('div');
+                    b.className = 'floating-bubble';
+                    b.innerHTML = emoji;
+                    b.style.left = (Math.random() * 80 + 5) + '%';
+                    b.style.width = b.style.height = (90 + Math.random() * 70) + 'px';
+                    b.style.setProperty('--d', (2 + Math.random() * 1.5) + 's');
+                    b.onpointerdown = (e) => { e.preventDefault(); b.style.transform='scale(0)'; setTimeout(()=>b.remove(),150); checkPop(idx, zone); };
+                    zone.appendChild(b);
+                    setTimeout(() => b.remove(), 3500);
+                };
+                state.timers.push(setInterval(gen, 300));
+            }
+            else if(type === 'tap') {
+                const obj = document.createElement('div');
+                obj.className = 'game-target shake-it';
+                obj.innerHTML = emoji;
+                obj.style.left = '50%';
+                obj.style.top = '45%';
+                obj.style.transform = 'translate(-50%, -50%) scale(1.8)';
+                let count = 0;
+                obj.onpointerdown = (e) => { 
+                    e.preventDefault();
+                    count++;
+                    const s = 1.8 + (count * 0.5);
+                    obj.style.transform = `translate(-50%, -50%) scale(${s})`;
+                    pop(e.clientX || window.innerWidth/2, e.clientY || window.innerHeight/2);
+                    if(count >= 6) win(idx, obj);
+                };
+                zone.appendChild(obj);
+            }
+        }
+
+        function checkPop(idx, zone) {
+            pop(window.innerWidth/2, window.innerHeight/2);
+            if(Math.random() > 0.9) win(idx, null);
+        }
+
+        function win(idx, el) {
+            if(el) {
+                el.classList.remove('shake-it');
+                el.style.transform = "scale(18) rotate(720deg)";
+                el.style.opacity = "0";
+                el.style.pointerEvents = "none";
+            }
+            state.timers.forEach(t => clearInterval(t));
+            pop(window.innerWidth/2, window.innerHeight/2);
+            narration("Wow! You won! Superstar!");
+            setTimeout(() => document.getElementById('shorts-feed').scrollBy({top: window.innerHeight, behavior: 'smooth'}), 1200);
+        }
+
+        function checkAns(i, pick, match, btn) {
+            if(!state.canAns) return;
+            window.speechSynthesis.cancel();
+            if(pick === match) {
+                state.canAns = false;
+                btn.classList.add('correct');
+                pop(window.innerWidth/2, window.innerHeight/2);
+                narration(`Yes! ${match} is right!`);
+                setTimeout(() => document.getElementById('shorts-feed').scrollBy({top: window.innerHeight, behavior: 'smooth'}), 1500);
+            } else {
+                btn.classList.add('wrong');
+                narration("Try again!");
+                setTimeout(() => btn.classList.remove('wrong'), 600);
+            }
+        }
+
+        function speak(i) {
+            window.speechSynthesis.cancel();
+            const card = document.getElementById(`card-${i}`);
+            if (!card) return;
+            let text = "";
+            if(card.dataset.type === "game") {
+                const g = card.dataset.game;
+                const n = GAME_DATA[card.dataset.emoji];
+                if(g === 'catch') text = `Catch the ${n}!`;
+                else if(g === 'pop') text = `Pop the bubbles!`;
+                else text = `Tap the ${n}!`;
+            } else {
+                const item = POOL[i];
+                text = `${item.n}. Find ${item.n}?`;
+            }
+            narration(text);
+        }
+
+        function narration(text) {
+            const u = new SpeechSynthesisUtterance(text);
+            const highQuality = state.voices.find(v => (v.name.includes("Neural") || v.name.includes("Enhanced") || v.name.includes("Premium") || v.name.includes("Samantha")) && v.lang.startsWith("en"));
+            if(highQuality) u.voice = highQuality;
+            u.pitch = 1.1;
+            u.rate = 1.0;
+            window.speechSynthesis.speak(u);
+        }
+
+        function pop(x, y) {
+            const emojis = ['⭐','✨','🎈','🎊','❤️','🔥'];
+            for(let i=0; i<10; i++) {
+                const c = document.createElement('div');
+                c.className = 'confetti-pop';
+                c.innerHTML = emojis[Math.floor(Math.random()*emojis.length)];
+                c.style.left = x + 'px';
+                c.style.top = y + 'px';
+                c.style.setProperty('--tx', (Math.random()-0.5) * 600 + 'px');
+                c.style.setProperty('--ty', (Math.random()-0.5) * 600 + 'px');
+                document.body.appendChild(c);
+                setTimeout(() => c.remove(), 1200);
+            }
+        }
+
+        window.onload = init;
     </script>
 </body>
 </html>
-
-
 
