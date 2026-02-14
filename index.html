@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Marley Shorts</title>
+    <title>Marley Shorts - Pro</title>
     
+    <!-- PWA / Mobile Setup -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Marley">
     <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/Waeil55/Marley/main/Y.JPG">
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -34,14 +34,15 @@
             touch-action: manipulation;
         }
 
-        .shorts-container {
+        /* YouTube Shorts Container */
+        .shorts-wrapper {
             height: 100vh;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
             scrollbar-width: none;
             -webkit-overflow-scrolling: touch;
         }
-        .shorts-container::-webkit-scrollbar { display: none; }
+        .shorts-wrapper::-webkit-scrollbar { display: none; }
 
         .short-card {
             height: 100vh;
@@ -52,26 +53,22 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
             background: #000;
             will-change: transform;
         }
 
-        /* High Quality Background Animation */
-        .video-bg {
+        /* Visual Style */
+        .video-fx {
             position: absolute;
             inset: 0;
-            background: radial-gradient(circle at 50% 50%, var(--accent, #6366f1) 0%, #000 85%);
-            opacity: 0.7;
+            background: radial-gradient(circle at 50% 50%, var(--color, #6366f1) 0%, #000 100%);
+            opacity: 0.6;
             z-index: 0;
-            animation: pulse-bg 8s infinite alternate ease-in-out;
+            animation: pulse 6s infinite alternate ease-in-out;
         }
-        @keyframes pulse-bg {
-            from { transform: scale(1); opacity: 0.5; }
-            to { transform: scale(1.1); opacity: 0.8; }
-        }
+        @keyframes pulse { from { opacity: 0.4; transform: scale(1); } to { opacity: 0.7; transform: scale(1.1); } }
 
-        /* YouTube Sidebar UI - Accurate Layout */
+        /* YouTube Sidebar */
         .sidebar {
             position: absolute;
             right: 8px;
@@ -79,30 +76,30 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 16px;
+            gap: 18px;
             z-index: 100;
         }
         .sidebar-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .icon-wrap { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; }
-        .btn-label { font-size: 12px; font-weight: 500; text-shadow: 0 1px 2px rgba(0,0,0,0.9); }
+        .icon-box { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
+        .label { font-size: 11px; font-weight: 500; text-shadow: 0 1px 2px rgba(0,0,0,0.9); }
 
-        .channel-avatar {
-            width: 44px;
-            height: 44px;
+        .profile-ring {
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             border: 2px solid #fff;
             position: relative;
             margin-bottom: 8px;
         }
-        .avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-        .sub-plus {
+        .profile-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        .plus-sub {
             position: absolute;
             bottom: -6px;
             left: 50%;
             transform: translateX(-50%);
             background: var(--yt-red);
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -112,8 +109,8 @@
             border: 2px solid #000;
         }
 
-        /* Bottom UI - Accurate Layout */
-        .bottom-overlay {
+        /* Bottom UI */
+        .bottom-ui {
             position: absolute;
             bottom: calc(25px + var(--safe-bottom));
             left: 12px;
@@ -121,141 +118,112 @@
             z-index: 100;
             pointer-events: none;
         }
-        .user-info {
+        .handle-row {
             font-weight: 700;
-            font-size: 15px;
+            font-size: 14px;
             margin-bottom: 10px;
             display: flex;
             align-items: center;
             gap: 10px;
             pointer-events: auto;
         }
-        .sub-chip {
-            background: #fff;
-            color: #000;
-            padding: 6px 14px;
-            border-radius: 100px;
-            font-size: 12px;
-            font-weight: 700;
-        }
-        .caption {
+        .sub-btn { background: #fff; color: #000; padding: 5px 12px; border-radius: 100px; font-size: 11px; font-weight: 700; }
+        .cap-text {
             font-size: 14px;
             line-height: 1.4;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
         }
-        .music-info {
+
+        /* Canvas Content */
+        .main-canvas { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; width: 100%; padding: 0 30px; }
+        .emoji-hero { font-size: 10rem; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.8)); font-family: 'Quicksand', sans-serif; margin-bottom: 25px; }
+        .opt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 340px; }
+        .opt-btn { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(25px); border: 1.5px solid rgba(255, 255, 255, 0.2); border-radius: 14px; padding: 18px 5px; font-weight: 700; font-size: 1.2rem; font-family: 'Quicksand', sans-serif; }
+        .opt-btn.correct { background: #22c55e; border-color: #4ade80; }
+        .opt-btn.wrong { background: #ef4444; border-color: #f87171; }
+
+        /* Mic Button Animation */
+        .mic-btn {
+            width: 80px;
+            height: 80px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            background: rgba(0,0,0,0.4);
-            width: fit-content;
-            padding: 5px 12px;
-            border-radius: 4px;
-            backdrop-filter: blur(4px);
+            justify-content: center;
+            border: 2px solid #fff;
+            margin-top: 10px;
+            transition: all 0.2s;
         }
+        .mic-btn.active { background: var(--yt-red); box-shadow: 0 0 30px var(--yt-red); animation: pulse-mic 1s infinite; }
+        @keyframes pulse-mic { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
-        /* Learning & Games */
-        .canvas-main { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; width: 100%; padding: 0 30px; }
-        .visual-emoji { font-size: 10rem; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.7)); font-family: 'Quicksand', sans-serif; margin-bottom: 30px; }
-        .grid-options { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; max-width: 360px; }
-        .bubble-opt { background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(30px); border: 1.5px solid rgba(255, 255, 255, 0.2); border-radius: 18px; padding: 20px 10px; font-weight: 700; text-align: center; font-size: 1.2rem; font-family: 'Quicksand', sans-serif; transition: transform 0.1s; }
-        .bubble-opt:active { transform: scale(0.94); background: rgba(255,255,255,0.2); }
-        .bubble-opt.correct { background: #22c55e; border-color: #4ade80; }
-        .bubble-opt.wrong { background: #ef4444; border-color: #f87171; }
-
+        /* Game Elements */
         .game-target { 
-            position: absolute; 
-            z-index: 200; 
-            font-size: 7.5rem; 
-            cursor: pointer; 
-            filter: drop-shadow(0 15px 30px rgba(0,0,0,0.6)); 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            width: 200px; 
-            height: 200px;
-            touch-action: none;
-            will-change: transform, left, top;
-            transition: left 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), top 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: absolute; z-index: 200; font-size: 7.5rem; cursor: pointer;
+            filter: drop-shadow(0 15px 30px rgba(0,0,0,0.7)); display: flex; align-items: center; justify-content: center; 
+            width: 180px; height: 180px; touch-action: none; will-change: transform, left, top;
+            transition: left 0.3s ease-out, top 0.3s ease-out;
         }
-        
-        .floating-bubble { 
-            border-radius: 50%; 
-            background: rgba(255,255,255,0.4); 
-            border: 4px solid rgba(255,255,255,0.6); 
-            backdrop-filter: blur(15px); 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 3.5rem; 
-            position: absolute; 
-            cursor: pointer; 
-            animation: fly-up var(--d) linear forwards; 
-            touch-action: none;
-            will-change: transform;
+        .bubble { 
+            border-radius: 50%; background: rgba(255,255,255,0.4); border: 4px solid rgba(255,255,255,0.5); 
+            backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; 
+            font-size: 3.5rem; position: absolute; animation: fly-up var(--d) linear forwards; 
         }
-        @keyframes fly-up { 
-            from { transform: translateY(110vh) rotate(0deg); } 
-            to { transform: translateY(-25vh) rotate(360deg); } 
-        }
+        @keyframes fly-up { from { transform: translateY(105vh); } to { transform: translateY(-20vh); } }
 
-        /* Top Progress Bar */
-        .story-progress { position: fixed; top: var(--safe-top); left: 0; width: 100%; display: flex; gap: 4px; padding: 12px; z-index: 300; }
-        .prog-unit { flex: 1; height: 3px; background: rgba(255,255,255,0.3); border-radius: 2px; overflow: hidden; }
-        .prog-bar { height: 100%; width: 0%; background: #fff; }
+        /* Top Progress */
+        .stories { position: fixed; top: var(--safe-top); left: 0; width: 100%; display: flex; gap: 4px; padding: 12px; z-index: 300; }
+        .seg { flex: 1; height: 2.5px; background: rgba(255,255,255,0.25); border-radius: 2px; }
+        .fill { height: 100%; width: 0%; background: #fff; }
 
-        /* Remix Disc Rotation */
-        .remix-disc { width: 34px; height: 34px; border-radius: 8px; border: 2.5px solid #fff; animation: disc-spin 3s linear infinite; }
-        @keyframes disc-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-        .confetti-pop { position: absolute; pointer-events: none; z-index: 1000; animation: explode 1s ease-out forwards; }
+        .confetti { position: absolute; pointer-events: none; z-index: 1000; animation: explode 1s ease-out forwards; }
         @keyframes explode { 0% { transform: translate(0,0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) rotate(360deg) scale(0); opacity: 0; } }
-
-        .shake-it { animation: vibrate 0.1s linear infinite; }
-        @keyframes vibrate { 0% { transform: scale(1.5) rotate(1deg); } 50% { transform: scale(1.5) rotate(-1deg); } 100% { transform: scale(1.5) rotate(1deg); } }
     </style>
 </head>
 <body>
 
-    <div class="story-progress" id="story-progress"></div>
-    <div id="shorts-feed" class="shorts-container"></div>
+    <div class="stories" id="stories"></div>
+    <div id="shorts-feed" class="shorts-wrapper"></div>
 
-    <!-- YouTube Nav Bar -->
+    <!-- YouTube Navbar -->
     <nav class="fixed bottom-0 w-full h-[65px] bg-black border-t border-white/10 flex justify-around items-center z-[500] pb-[var(--safe-bottom)]">
         <div class="flex flex-col items-center"><i data-lucide="home" class="w-6 h-6 text-white"></i><span class="text-[10px] mt-1 font-bold text-white">Home</span></div>
         <div class="flex flex-col items-center"><i data-lucide="compass" class="w-6 h-6"></i><span class="text-[10px] mt-1 font-bold">Shorts</span></div>
         <div class="w-12 h-12 border border-white/40 rounded-full flex items-center justify-center"><i data-lucide="plus" class="w-8 h-8"></i></div>
-        <div class="flex flex-col items-center opacity-40"><i data-lucide="play-square" class="w-6 h-6"></i><span class="text-[10px] mt-1 font-bold">Subscriptions</span></div>
+        <div class="flex flex-col items-center opacity-40"><i data-lucide="play-square" class="w-6 h-6"></i><span class="text-[10px] mt-1 font-bold">Subs</span></div>
         <div class="flex flex-col items-center opacity-40"><i data-lucide="user" class="w-6 h-6"></i><span class="text-[10px] mt-1 font-bold">You</span></div>
     </nav>
 
     <script>
-        const ANIMALS = {"🐶":"Dog","🐱":"Cat","🐻":"Bear","🦁":"Lion","🐮":"Cow","🐷":"Pig","🐸":"Frog","🐔":"Hen","🐦":"Bird","🦆":"Duck","🦇":"Bat","🐺":"Wolf","🦌":"Deer","🐟":"Fish","🐐":"Goat","🦀":"Crab","🐝":"Bee","🐜":"Ant","🦭":"Seal","🦖":"Dino"};
-        const FOOD = {"🍐":"Pear","Kiwi":"Kiwi","🌽":"Corn","🥩":"Meat","🍰":"Cake","🥧":"Pie","🥚":"Egg","🥣":"Soup","🍚":"Rice","🥛":"Milk","🌮":"Taco","🥜":"Nut","🫐":"Berry","🥯":"Bun"};
+        // Clean Data (Max 4 Letters)
+        const ANIMALS = {"🐶":"Dog","🐱":"Cat","🐻":"Bear","🦁":"Lion","🐮":"Cow","🐷":"Pig","🐸":"Frog","🐔":"Hen","🐦":"Bird","🦆":"Duck","🦇":"Bat","🐺":"Wolf","🦌":"Deer","🐟":"Fish","🐐":"Goat","🦀":"Crab","🐝":"Bee","🐜":"Ant"};
+        const FOOD = {"🍐":"Pear","Kiwi":"Kiwi","🌽":"Corn","🥩":"Meat","🍰":"Cake","🥧":"Pie","🥚":"Egg","🥣":"Soup","🍚":"Rice","🥛":"Milk","🌮":"Taco","🥯":"Bun"};
         const NUMS = ["Zero","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen","Twenty"];
-        const GAME_DATA = {"🍐":"Pear","⚽":"Ball","⭐":"Star","🧁":"Cake","🥚":"Egg","🌽":"Corn","🌮":"Taco","🥣":"Soup"};
+        const GAMES = {"🍐":"Pear","⚽":"Ball","⭐":"Star","🧁":"Cake","🥚":"Egg","🌽":"Corn","🌮":"Taco","🥣":"Soup"};
 
         let POOL = [];
         let state = {
-            score: parseInt(localStorage.getItem('m_v10_stars') || 0),
+            score: parseInt(localStorage.getItem('m_v11_stars') || 0),
             idx: -1,
             canAns: true,
             timers: [],
-            voices: []
+            voices: [],
+            rec: null
         };
 
         function buildPool() {
             let temp = [];
-            Object.keys(ANIMALS).forEach(e => temp.push({e, n: ANIMALS[e], c: "#6366f1"}));
-            Object.keys(FOOD).forEach(e => temp.push({e, n: FOOD[e], c: "#ef4444"}));
-            for(let i=1; i<=20; i++) temp.push({e:i, n: NUMS[i], c: "#10b981"});
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('').forEach(l => temp.push({e:l, n: l, c: "#f59e0b"}));
+            Object.keys(ANIMALS).forEach(e => temp.push({e, n: ANIMALS[e], c: "#6366f1", type: "spell"}));
+            Object.keys(FOOD).forEach(e => temp.push({e, n: FOOD[e], c: "#ef4444", type: "spell"}));
+            for(let i=1; i<=20; i++) temp.push({e:i, n: NUMS[i], c: "#10b981", type: "pick"});
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('').forEach(l => temp.push({e:l, n: l, c: "#f59e0b", type: "pick"}));
+            
             temp.sort(() => Math.random() - 0.5);
             while(POOL.length < 400) POOL.push({...temp[POOL.length % temp.length]});
         }
@@ -263,20 +231,29 @@
         function init() {
             buildPool();
             const feed = document.getElementById('shorts-feed');
-            const prog = document.getElementById('story-progress');
+            const prog = document.getElementById('stories');
 
             POOL.forEach((item, i) => {
                 const card = document.createElement('div');
                 card.className = 'short-card';
                 card.id = `card-${i}`;
                 feed.appendChild(card);
-                prog.innerHTML += `<div class="prog-unit"><div id="fill-${i}" class="prog-bar"></div></div>`;
+                prog.innerHTML += `<div class="seg"><div id="fill-${i}" class="fill"></div></div>`;
             });
 
             lucide.createIcons();
+            
+            // Audio/Speech Init
             const setVoices = () => { state.voices = window.speechSynthesis.getVoices(); };
             setVoices();
             window.speechSynthesis.onvoiceschanged = setVoices;
+
+            if ('webkitSpeechRecognition' in window) {
+                state.rec = new webkitSpeechRecognition();
+                state.rec.continuous = false;
+                state.rec.interimResults = false;
+                state.rec.lang = 'en-US';
+            }
 
             feed.addEventListener('scroll', handleScroll, {passive: true});
             handleScroll();
@@ -287,24 +264,44 @@
             if (card.innerHTML !== '') return;
 
             const item = POOL[i];
+            
+            // Every 4th card is a game
             if (i > 0 && i % 4 === 3) {
                 const games = ['catch', 'pop', 'tap'];
                 const type = games[i % games.length];
-                const emojis = Object.keys(GAME_DATA);
+                const emojis = Object.keys(GAMES);
                 const emoji = emojis[i % emojis.length];
                 card.dataset.type = "game";
                 card.dataset.game = type;
                 card.dataset.emoji = emoji;
                 card.innerHTML = `
-                    <div class="video-bg" style="--accent: #ff0055"></div>
-                    <div class="canvas-main">
-                        <h2 class="text-5xl font-black italic mb-2 tracking-tighter drop-shadow-lg">SPEED CHALLENGE</h2>
-                        <div id="game-zone-${i}" class="absolute inset-0 w-full h-full pointer-events-none"></div>
+                    <div class="video-fx" style="--color: #ff0055"></div>
+                    <div class="main-canvas">
+                        <h2 class="text-4xl font-black italic mb-2 tracking-tighter">GAME TIME</h2>
+                        <div id="zone-${i}" class="absolute inset-0 w-full h-full pointer-events-none"></div>
                     </div>
                     ${getSidebar()}
-                    ${getBottom(`Mini Game`, `Marley says: Quick! Catch the ${GAME_DATA[emoji]}!`)}
+                    ${getBottom(`Mini Game`, `Catch the ${GAMES[emoji]}!`)}
                 `;
-            } else {
+            } 
+            // Spell tasks
+            else if (item.type === "spell" && i % 2 === 0) {
+                card.dataset.type = "spell";
+                card.innerHTML = `
+                    <div class="video-fx" style="--color: ${item.c}"></div>
+                    <div class="main-canvas">
+                        <div class="emoji-hero">${item.e}</div>
+                        <h3 class="text-2xl font-bold mb-4 uppercase">Can you say it?</h3>
+                        <button id="mic-${i}" onclick="startMic(${i}, '${item.n}')" class="mic-btn">
+                            <i data-lucide="mic" class="w-10 h-10"></i>
+                        </button>
+                    </div>
+                    ${getSidebar()}
+                    ${getBottom(`Speech Lab`, `Say the word ${item.n}!`)}
+                `;
+            }
+            // Standard Pick tasks
+            else {
                 let opts = [item];
                 while(opts.length < 4) {
                     let r = POOL[Math.floor(Math.random()*POOL.length)];
@@ -312,15 +309,15 @@
                 }
                 opts.sort(() => Math.random() - 0.5);
                 card.innerHTML = `
-                    <div class="video-bg" style="--accent: ${item.c}"></div>
-                    <div class="canvas-main">
-                        <div class="visual-emoji">${item.e}</div>
-                        <div class="grid-options">
-                            ${opts.map(o => `<button onclick="checkAns(${i}, '${o.n}', '${item.n}', this)" class="bubble-opt">${o.n}</button>`).join('')}
+                    <div class="video-fx" style="--color: ${item.c}"></div>
+                    <div class="main-canvas">
+                        <div class="emoji-hero">${item.e}</div>
+                        <div class="opt-grid">
+                            ${opts.map(o => `<button onclick="checkPick(${i}, '${o.n}', '${item.n}', this)" class="opt-btn">${o.n}</button>`).join('')}
                         </div>
                     </div>
                     ${getSidebar()}
-                    ${getBottom(`Marley Learn`, `Find the ${item.n}!`)}
+                    ${getBottom(`Marley Learn`, `Which one is ${item.n}?`)}
                 `;
             }
             lucide.createIcons();
@@ -329,25 +326,24 @@
         function getSidebar() {
             return `
                 <div class="sidebar">
-                    <div class="channel-avatar"><img src="https://raw.githubusercontent.com/Waeil55/Marley/main/Y.JPG" class="avatar-img"><div class="sub-plus">+</div></div>
-                    <div class="sidebar-btn"><div class="icon-wrap"><i data-lucide="thumbs-up" class="w-8 h-8 fill-white"></i></div><span class="btn-label">12K</span></div>
-                    <div class="sidebar-btn"><div class="icon-wrap"><i data-lucide="thumbs-down" class="w-8 h-8"></i></div><span class="btn-label">Dislike</span></div>
-                    <div class="sidebar-btn"><div class="icon-wrap"><i data-lucide="message-square" class="w-8 h-8 fill-white"></i></div><span class="btn-label">421</span></div>
-                    <div class="sidebar-btn"><div class="icon-wrap"><i data-lucide="share-2" class="w-8 h-8 fill-white"></i></div><span class="btn-label">Share</span></div>
-                    <div class="remix-disc"><img src="https://raw.githubusercontent.com/Waeil55/Marley/main/Y.JPG" class="w-full h-full object-cover rounded-md"></div>
+                    <div class="profile-ring"><img src="https://raw.githubusercontent.com/Waeil55/Marley/main/Y.JPG" class="profile-img"><div class="plus-sub">+</div></div>
+                    <div class="sidebar-btn" onclick="pop(innerWidth/2, innerHeight/2)"><div class="icon-box"><i data-lucide="thumbs-up" class="w-7 h-7 fill-white"></i></div><span class="label">12K</span></div>
+                    <div class="sidebar-btn"><div class="icon-box"><i data-lucide="message-square" class="w-7 h-7 fill-white"></i></div><span class="label">421</span></div>
+                    <div class="sidebar-btn"><div class="icon-box"><i data-lucide="share-2" class="w-7 h-7 fill-white"></i></div><span class="label">Share</span></div>
+                    <div class="w-8 h-8 rounded border-2 border-white overflow-hidden animate-[spin_4s_linear_infinite]"><img src="https://raw.githubusercontent.com/Waeil55/Marley/main/Y.JPG" class="w-full h-full object-cover"></div>
                 </div>
             `;
         }
 
         function getBottom(title, desc) {
             return `
-                <div class="bottom-overlay">
-                    <div class="user-info">
-                        <div class="w-8 h-8 rounded-full overflow-hidden border border-white/20"><img src="https://raw.githubusercontent.com/Waeil55/Marley/main/Y.JPG" class="w-full h-full object-cover"></div>
-                        @marley_world <span class="sub-chip">Subscribe</span>
+                <div class="bottom-ui">
+                    <div class="handle-row">
+                        <div class="w-8 h-8 rounded-full overflow-hidden border border-white/30"><img src="https://raw.githubusercontent.com/Waeil55/Marley/main/Y.JPG" class="w-full h-full object-cover"></div>
+                        @marley_world <span class="sub-btn">Subscribe</span>
                     </div>
-                    <div class="caption">${desc}</div>
-                    <div class="music-info"><i data-lucide="music" class="w-4 h-4 text-white"></i><marquee class="w-32">Original Sound - Marley Kids Fun</marquee></div>
+                    <div class="cap-text">${desc}</div>
+                    <div class="music-tag flex items-center gap-2 text-sm bg-black/40 p-1 px-3 rounded"><i data-lucide="music" class="w-4 h-4"></i><marquee class="w-24">Original Audio - Marley</marquee></div>
                 </div>
             `;
         }
@@ -366,98 +362,92 @@
                     else renderCard(i);
                 });
 
-                document.querySelectorAll('.prog-bar').forEach((f, i) => f.style.width = i <= idx ? '100%' : '0');
+                document.querySelectorAll('.fill').forEach((f, i) => f.style.width = i <= idx ? '100%' : '0');
 
                 const card = document.getElementById(`card-${idx}`);
-                // START GAME ASAP
-                if(card && card.dataset.type === "game") startGame(idx, card.dataset.game, card.dataset.emoji);
+                // START GAME OR SPEECH IMMEDIATELY
+                if(card && card.dataset.type === "game") startPlay(idx, card.dataset.game, card.dataset.emoji);
                 
                 speak(idx);
             }
         }
 
-        function startGame(idx, type, emoji) {
-            const zone = document.getElementById(`game-zone-${idx}`);
+        function startPlay(idx, type, emoji) {
+            const zone = document.getElementById(`zone-${idx}`);
             if(!zone) return;
             zone.innerHTML = '';
             zone.style.pointerEvents = 'auto';
 
             if(type === 'catch') {
-                const obj = document.createElement('div');
-                obj.className = 'game-target';
-                obj.innerHTML = emoji;
-                obj.style.left = '50%';
-                obj.style.top = '50%';
-                obj.onpointerdown = (e) => { e.preventDefault(); win(idx, obj); };
-                zone.appendChild(obj);
+                const target = document.createElement('div');
+                target.className = 'game-target';
+                target.innerHTML = emoji;
+                target.style.left = '50%';
+                target.style.top = '50%';
+                target.onpointerdown = (e) => { e.preventDefault(); win(idx, target); };
+                zone.appendChild(target);
                 const move = () => {
-                    obj.style.left = (Math.random() * (window.innerWidth - 200) + 10) + 'px';
-                    obj.style.top = (Math.random() * (window.innerHeight * 0.45) + (window.innerHeight * 0.2)) + 'px';
-                    obj.style.transform = `rotate(${Math.random() * 90 - 45}deg)`;
+                    target.style.left = (Math.random() * (window.innerWidth - 180) + 10) + 'px';
+                    target.style.top = (Math.random() * (window.innerHeight * 0.45) + (window.innerHeight * 0.2)) + 'px';
+                    target.style.transform = `rotate(${Math.random() * 60 - 30}deg)`;
                 };
                 state.timers.push(setInterval(move, 400));
                 move();
             } 
             else if(type === 'pop') {
                 const gen = () => {
-                    if(zone.children.length > 10) return;
+                    if(zone.children.length > 8) return;
                     const b = document.createElement('div');
-                    b.className = 'floating-bubble';
+                    b.className = 'bubble';
                     b.innerHTML = emoji;
                     b.style.left = (Math.random() * 80 + 5) + '%';
-                    b.style.width = b.style.height = (90 + Math.random() * 70) + 'px';
-                    b.style.setProperty('--d', (2 + Math.random() * 1.5) + 's');
-                    b.onpointerdown = (e) => { e.preventDefault(); b.style.transform='scale(0)'; setTimeout(()=>b.remove(),150); checkPop(idx, zone); };
+                    b.style.width = b.style.height = (100 + Math.random() * 50) + 'px';
+                    b.style.setProperty('--d', (2 + Math.random() * 1) + 's');
+                    b.onpointerdown = (e) => { e.preventDefault(); b.style.transform='scale(0)'; setTimeout(()=>b.remove(),100); checkPop(idx); };
                     zone.appendChild(b);
                     setTimeout(() => b.remove(), 3500);
                 };
                 state.timers.push(setInterval(gen, 300));
             }
             else if(type === 'tap') {
-                const obj = document.createElement('div');
-                obj.className = 'game-target shake-it';
-                obj.innerHTML = emoji;
-                obj.style.left = '50%';
-                obj.style.top = '45%';
-                obj.style.transform = 'translate(-50%, -50%) scale(1.8)';
-                let count = 0;
-                obj.onpointerdown = (e) => { 
+                const target = document.createElement('div');
+                target.className = 'game-target vibrate';
+                target.innerHTML = emoji;
+                target.style.left = '50%';
+                target.style.top = '45%';
+                target.style.transform = 'translate(-50%, -50%) scale(1.8)';
+                let hits = 0;
+                target.onpointerdown = (e) => { 
                     e.preventDefault();
-                    count++;
-                    const s = 1.8 + (count * 0.5);
-                    obj.style.transform = `translate(-50%, -50%) scale(${s})`;
-                    pop(e.clientX || window.innerWidth/2, e.clientY || window.innerHeight/2);
-                    if(count >= 6) win(idx, obj);
+                    hits++;
+                    target.style.transform = `translate(-50%, -50%) scale(${1.8 + hits * 0.5})`;
+                    pop(e.clientX || innerWidth/2, e.clientY || innerHeight/2);
+                    if(hits >= 6) win(idx, target);
                 };
-                zone.appendChild(obj);
+                zone.appendChild(target);
             }
         }
 
-        function checkPop(idx, zone) {
-            pop(window.innerWidth/2, window.innerHeight/2);
+        function checkPop(idx) {
+            pop(innerWidth/2, innerHeight/2);
             if(Math.random() > 0.9) win(idx, null);
         }
 
         function win(idx, el) {
-            if(el) {
-                el.classList.remove('shake-it');
-                el.style.transform = "scale(18) rotate(720deg)";
-                el.style.opacity = "0";
-                el.style.pointerEvents = "none";
-            }
+            if(el) { el.style.transform = "scale(20) rotate(720deg)"; el.style.opacity = "0"; el.style.pointerEvents = "none"; }
             state.timers.forEach(t => clearInterval(t));
-            pop(window.innerWidth/2, window.innerHeight/2);
+            pop(innerWidth/2, innerHeight/2);
             narration("Wow! You won! Superstar!");
             setTimeout(() => document.getElementById('shorts-feed').scrollBy({top: window.innerHeight, behavior: 'smooth'}), 1200);
         }
 
-        function checkAns(i, pick, match, btn) {
+        function checkPick(i, pick, match, btn) {
             if(!state.canAns) return;
             window.speechSynthesis.cancel();
             if(pick === match) {
                 state.canAns = false;
                 btn.classList.add('correct');
-                pop(window.innerWidth/2, window.innerHeight/2);
+                pop(innerWidth/2, innerHeight/2);
                 narration(`Yes! ${match} is right!`);
                 setTimeout(() => document.getElementById('shorts-feed').scrollBy({top: window.innerHeight, behavior: 'smooth'}), 1500);
             } else {
@@ -467,6 +457,26 @@
             }
         }
 
+        function startMic(idx, target) {
+            if (!state.rec) return;
+            const btn = document.getElementById(`mic-${idx}`);
+            btn.classList.add('active');
+            
+            state.rec.start();
+            state.rec.onresult = (e) => {
+                const heard = e.results[0][0].transcript.toLowerCase();
+                btn.classList.remove('active');
+                if (heard.includes(target.toLowerCase())) {
+                    pop(innerWidth/2, innerHeight/2);
+                    narration("Incredible! You said it!");
+                    setTimeout(() => document.getElementById('shorts-feed').scrollBy({top: window.innerHeight, behavior: 'smooth'}), 1200);
+                } else {
+                    narration(`I heard ${heard}. Try again!`);
+                }
+            };
+            state.rec.onerror = () => btn.classList.remove('active');
+        }
+
         function speak(i) {
             window.speechSynthesis.cancel();
             const card = document.getElementById(`card-${i}`);
@@ -474,21 +484,22 @@
             let text = "";
             if(card.dataset.type === "game") {
                 const g = card.dataset.game;
-                const n = GAME_DATA[card.dataset.emoji];
+                const n = GAMES[card.dataset.emoji];
                 if(g === 'catch') text = `Catch the ${n}!`;
                 else if(g === 'pop') text = `Pop the bubbles!`;
                 else text = `Tap the ${n}!`;
+            } else if (card.dataset.type === "spell") {
+                text = `Say the word ${POOL[i].n}`;
             } else {
-                const item = POOL[i];
-                text = `${item.n}. Find ${item.n}?`;
+                text = `${POOL[i].n}. Find ${POOL[i].n}?`;
             }
             narration(text);
         }
 
         function narration(text) {
             const u = new SpeechSynthesisUtterance(text);
-            const highQuality = state.voices.find(v => (v.name.includes("Neural") || v.name.includes("Enhanced") || v.name.includes("Premium") || v.name.includes("Samantha")) && v.lang.startsWith("en"));
-            if(highQuality) u.voice = highQuality;
+            const high = state.voices.find(v => (v.name.includes("Neural") || v.name.includes("Enhanced") || v.name.includes("Premium") || v.name.includes("Samantha")) && v.lang.startsWith("en"));
+            if(high) u.voice = high;
             u.pitch = 1.1;
             u.rate = 1.0;
             window.speechSynthesis.speak(u);
@@ -496,9 +507,9 @@
 
         function pop(x, y) {
             const emojis = ['⭐','✨','🎈','🎊','❤️','🔥'];
-            for(let i=0; i<10; i++) {
+            for(let i=0; i<12; i++) {
                 const c = document.createElement('div');
-                c.className = 'confetti-pop';
+                c.className = 'confetti';
                 c.innerHTML = emojis[Math.floor(Math.random()*emojis.length)];
                 c.style.left = x + 'px';
                 c.style.top = y + 'px';
