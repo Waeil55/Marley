@@ -2,364 +2,352 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>👩‍⚕️Marley</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Marley's World - Pre-K Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-        }
-    </script>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;700&family=Balsamiq+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
-            --primary: #58cc02;
-            --secondary: #1cb0f6;
-            --accent: #ffc800;
-            --danger: #ff4b4b;
+            --primary: #FF9800;
+            --font-main: 'Bubblegum Sans', cursive;
         }
-
-        body { font-family: 'Quicksand', sans-serif; touch-action: manipulation; transition: background-color 0.3s ease; }
-        .font-kids-1 { font-family: 'Fredoka One', cursive; }
-        .font-kids-2 { font-family: 'Quicksand', sans-serif; font-weight: 700; }
-        .font-kids-3 { font-family: 'Balsamiq Sans', cursive; }
-
-        .btn-bounce:active { transform: scale(0.92); }
-        
-        .mic-active { background-color: var(--danger) !important; animation: pulse 1.2s infinite; }
-        @keyframes pulse { 
-            0% { box-shadow: 0 0 0 0 rgba(255, 75, 75, 0.7); } 
-            70% { box-shadow: 0 0 0 20px rgba(255, 75, 75, 0); } 
-            100% { box-shadow: 0 0 0 0 rgba(255, 75, 75, 0); } 
+        body {
+            font-family: var(--font-main);
+            background-color: #FFFDE7;
+            color: #4E342E;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
-
-        .wave-bar { width: 6px; background-color: white; border-radius: 3px; animation: wave 0.6s infinite ease-in-out; }
-        @keyframes wave { 0%, 100% { height: 10px; } 50% { height: 30px; } }
-        
-        .accuracy-container { width: 100%; height: 12px; background: #e5e7eb; border-radius: 20px; margin: 15px 0; overflow: hidden; display: none; }
-        .dark .accuracy-container { background: #334155; }
-        .accuracy-fill { height: 100%; width: 0%; transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-
-        .shake { animation: shake 0.4s ease-in-out; }
-        @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-8px);} 75%{transform:translateX(8px);} }
+        .bubble-btn {
+            border-radius: 35px;
+            box-shadow: 0 8px 0 rgba(0,0,0,0.1);
+            transition: all 0.1s;
+        }
+        .bubble-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+        }
+        .rainbow-text {
+            background-image: linear-gradient(to left, #ec4899, #8b5cf6, #3b82f6, #10b981, #f59e0b, #ef4444);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .mic-pulse {
+            animation: pulse-red 1.5s infinite;
+        }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .hidden-view { display: none; }
+        .confetti {
+            position: fixed;
+            width: 8px; height: 8px;
+            z-index: 100;
+            pointer-events: none;
+        }
     </style>
 </head>
-<body class="bg-blue-50 dark:bg-slate-950 flex flex-col items-center justify-start min-h-screen p-4 overflow-hidden select-none">
+<body class="min-h-screen flex flex-col">
 
-    <!-- Top Navigation & Stats -->
-    <div class="fixed top-4 w-full max-w-2xl px-6 flex flex-col gap-3 z-20">
-        <div class="flex justify-between items-center">
-            <div class="flex gap-2">
-                <div class="bg-white dark:bg-slate-800 rounded-2xl px-4 py-2 shadow-lg border-2 border-yellow-400 transition-colors">
-                    <span class="text-xs font-bold text-gray-400 block">PROGRESS</span>
-                    <span class="text-lg font-black text-yellow-600 dark:text-yellow-400" id="progressText">1 / 10</span>
+    <div id="confetti-layer"></div>
+
+    <header class="p-4 bg-white rounded-b-[40px] shadow-sm sticky top-0 z-40">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="goHome()">
+                <div class="w-12 h-12 bg-orange-100 rounded-xl p-1 border-2 border-orange-400">
+                    <img src="https://raw.githubusercontent.com/Waeil55/Merola/main/M.PNG" class="w-full h-full object-contain" alt="M">
                 </div>
-                <div class="bg-white dark:bg-slate-800 rounded-2xl px-4 py-2 shadow-lg border-2 border-green-400 transition-colors">
-                    <span class="text-xs font-bold text-gray-400 block">STARS</span>
-                    <span class="text-lg font-black text-green-600">⭐ <span id="starCount">0</span></span>
-                </div>
+                <h1 class="text-2xl font-black text-orange-500">MARLEY</h1>
             </div>
-            
-            <div class="flex gap-2">
-                <button onclick="toggleTheme()" class="bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-lg border-2 border-indigo-400 text-indigo-500 dark:text-yellow-400 btn-bounce transition-colors">
-                    <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                    </svg>
-                    <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
-                    </svg>
+            <div class="flex items-center gap-2">
+                <div class="bg-yellow-100 px-4 py-1 rounded-full border-2 border-yellow-400 flex items-center gap-2">
+                    <span class="text-xl">⭐</span>
+                    <span id="global-score" class="text-xl font-black text-yellow-700">0</span>
+                </div>
+                <button onclick="goHome()" id="home-btn" class="hidden-view w-10 h-10 bg-sky-100 text-sky-600 rounded-xl flex items-center justify-center border-2 border-sky-400">
+                    <i data-lucide="home"></i>
                 </button>
             </div>
         </div>
+    </header>
 
-        <!-- Customization Bar -->
-        <div class="flex items-center justify-between bg-white/90 dark:bg-slate-800/90 backdrop-blur-md p-3 rounded-2xl shadow-xl border-2 border-blue-200 dark:border-slate-700 transition-colors">
-            <div class="flex items-center gap-1">
-                <button onclick="adjustFontSize(-1)" class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-slate-700 dark:text-white font-bold text-sm btn-bounce">A-</button>
-                <button onclick="adjustFontSize(1)" class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-slate-700 dark:text-white font-bold text-sm btn-bounce">A+</button>
+    <main class="flex-grow p-4 max-w-4xl mx-auto w-full">
+        <!-- Main Hub -->
+        <div id="home-view" class="space-y-6">
+            <div class="text-center py-2">
+                <h2 class="text-3xl font-black rainbow-text italic">Time to Play!</h2>
             </div>
-            
-            <button onclick="cycleFont()" class="bg-blue-500 text-white px-3 py-1.5 rounded-xl font-bold text-xs shadow-md btn-bounce">FONT</button>
-            
-            <div class="flex gap-1">
-                <button onclick="filterType('ABC')" class="px-2 py-1 bg-orange-400 text-white rounded-lg text-[10px] font-black btn-bounce">ABC</button>
-                <button onclick="filterType('3LE')" class="px-2 py-1 bg-purple-500 text-white rounded-lg text-[10px] font-black btn-bounce">WORDS</button>
-                <button onclick="filterType('NUM')" class="px-2 py-1 bg-green-500 text-white rounded-lg text-[10px] font-black btn-bounce">123</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Learning Card -->
-    <main id="mainCard" class="w-full max-w-lg bg-white dark:bg-slate-800 rounded-[40px] shadow-2xl p-8 border-b-[12px] border-gray-200 dark:border-slate-950 relative mt-44 transition-all duration-300">
-        <div class="flex flex-col items-center justify-center min-h-[280px]">
-            <h1 id="mainWord" class="font-kids-1 tracking-wider mb-2 text-center text-8xl dark:text-white transition-all duration-300">CAT</h1>
-            
-            <div id="accuracyContainer" class="accuracy-container">
-                <div id="accuracyFill" class="accuracy-fill"></div>
-            </div>
-
-            <p id="feedbackText" class="text-xl font-bold text-gray-400 dark:text-gray-500 text-center px-4 h-16 flex items-center justify-center">Ready to start?</p>
-        </div>
-
-        <div class="grid grid-cols-2 gap-6 mb-8">
-            <button onclick="playWordAudio()" class="btn-bounce flex flex-col items-center justify-center bg-orange-400 text-white rounded-3xl py-6 shadow-xl border-b-8 border-orange-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
-                <span class="font-black text-base">LISTEN</span>
-            </button>
-            
-            <button id="speakBtn" onclick="toggleSpeech()" class="btn-bounce flex flex-col items-center justify-center bg-red-400 text-white rounded-3xl py-6 shadow-xl border-b-8 border-red-600 transition-all">
-                <div id="waveform" class="flex items-center justify-center gap-1.5 h-10 mb-2 hidden">
-                    <div class="wave-bar" style="animation-delay: 0.1s"></div>
-                    <div class="wave-bar" style="animation-delay: 0.3s"></div>
-                    <div class="wave-bar" style="animation-delay: 0.5s"></div>
-                    <div class="wave-bar" style="animation-delay: 0.2s"></div>
+            <div class="grid grid-cols-2 gap-4">
+                <div onclick="startActivity('speech')" class="bubble-btn bg-red-400 p-6 text-white text-center cursor-pointer border-4 border-red-200 col-span-2">
+                    <div class="text-5xl mb-1">🎤</div>
+                    <span class="text-2xl font-black uppercase tracking-widest">Speech Lab</span>
                 </div>
-                <svg id="micIcon" xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
-                <span id="micBtnText" class="font-black text-base uppercase">SAY IT</span>
-            </button>
+                <div onclick="startActivity('listening')" class="bubble-btn bg-indigo-400 p-6 text-white text-center cursor-pointer border-4 border-indigo-200 col-span-2">
+                    <div class="text-5xl mb-1">👂</div>
+                    <span class="text-2xl font-black uppercase tracking-widest">Listen & Pick</span>
+                </div>
+                <div onclick="startActivity('abc')" class="bubble-btn bg-pink-400 p-5 text-white text-center cursor-pointer border-4 border-pink-200">
+                    <div class="text-4xl mb-1">ABC</div>
+                    <span class="text-lg font-black uppercase">Letters</span>
+                </div>
+                <div onclick="startActivity('numbers')" class="bubble-btn bg-blue-400 p-5 text-white text-center cursor-pointer border-4 border-blue-200">
+                    <div class="text-4xl mb-1">123</div>
+                    <span class="text-lg font-black uppercase">Numbers</span>
+                </div>
+                <div onclick="startActivity('animals')" class="bubble-btn bg-orange-400 p-5 text-white text-center cursor-pointer border-4 border-orange-200">
+                    <div class="text-4xl mb-1">🐶</div>
+                    <span class="text-lg font-black uppercase">Animals</span>
+                </div>
+                <div onclick="startActivity('fruits')" class="bubble-btn bg-green-400 p-5 text-white text-center cursor-pointer border-4 border-green-200">
+                    <div class="text-4xl mb-1">🍎</div>
+                    <span class="text-lg font-black uppercase">Fruits</span>
+                </div>
+            </div>
         </div>
 
-        <div class="flex items-center justify-between gap-4">
-            <button onclick="changeIndex(-1)" class="btn-bounce bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-300 rounded-2xl p-4 flex-1 font-black">BACK</button>
-            <button onclick="changeIndex(1)" class="btn-bounce bg-blue-500 text-white rounded-2xl p-4 flex-[2] font-black shadow-lg border-b-8 border-blue-700">NEXT</button>
+        <!-- Activity View -->
+        <div id="activity-view" class="hidden-view space-y-4">
+            <div class="w-full bg-gray-200 h-3 rounded-full overflow-hidden mb-2">
+                <div id="progress-bar" class="bg-orange-400 h-full transition-all" style="width: 0%"></div>
+            </div>
+            <div class="text-center font-black text-gray-400 text-sm mb-4">
+                Question <span id="current-count">1</span> of 150
+            </div>
+
+            <div id="game-card" class="bg-white rounded-[50px] p-8 shadow-xl border-b-8 border-gray-100 text-center relative min-h-[400px] flex flex-col justify-center">
+                <div id="task-title" class="text-2xl font-black text-orange-500 mb-4 uppercase"></div>
+                
+                <div id="visual-content" class="text-9xl mb-8 flex justify-center items-center"></div>
+
+                <div id="interaction-area">
+                    <div id="options-grid" class="grid grid-cols-2 gap-4"></div>
+                    
+                    <div id="mic-area" class="hidden flex flex-col items-center gap-4">
+                        <button id="mic-btn" onclick="toggleMic()" class="w-24 h-24 rounded-full bg-red-100 border-4 border-red-200 text-red-500 flex items-center justify-center shadow-lg active:scale-90 transition-all">
+                            <i data-lucide="mic" class="w-12 h-12"></i>
+                        </button>
+                        <p id="mic-status" class="text-xl font-black text-red-400">Tap & Say it!</p>
+                        <p id="heard-text" class="text-lg text-gray-300 italic font-bold h-6"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Final Win View -->
+        <div id="win-view" class="hidden-view py-16 text-center">
+            <div class="text-9xl mb-6">👑</div>
+            <h2 class="text-5xl font-black text-orange-500 mb-4">MARLEY PRIDE!</h2>
+            <p class="text-2xl font-black text-gray-500 mb-10">You finished 150 lessons!</p>
+            <button onclick="goHome()" class="bubble-btn bg-orange-500 text-white px-10 py-5 text-2xl font-black border-b-8 border-orange-700">PLAY AGAIN</button>
         </div>
     </main>
 
-    <!-- Success Modal -->
-    <div id="modal" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center z-50 p-6 backdrop-blur-md">
-        <div class="bg-white dark:bg-slate-800 rounded-[40px] p-10 max-w-sm w-full text-center shadow-2xl scale-in" id="modalContent">
-            <div id="modalIcon" class="text-8xl mb-4 animate-bounce">🏆</div>
-            <h2 id="modalTitle" class="font-kids-1 text-4xl text-green-600 mb-2">Wow!</h2>
-            <p id="modalMsg" class="text-xl text-gray-600 dark:text-gray-300 mb-8 font-bold"></p>
-            <button onclick="closeModal()" class="w-full bg-green-500 text-white rounded-2xl py-5 font-black text-2xl border-b-8 border-green-700 btn-bounce">CONTINUE</button>
-        </div>
-    </div>
-
     <script>
-        // --- Procedural Sound System ---
-        const SoundFX = {
-            ctx: null,
-            init() {
-                if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-            },
-            play(type) {
-                this.init();
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-
-                const now = this.ctx.currentTime;
-
-                if (type === 'success') {
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(523.25, now); // C5
-                    osc.frequency.exponentialRampToValueAtTime(880, now + 0.1); // A5
-                    gain.gain.setValueAtTime(0.3, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-                    osc.start(now);
-                    osc.stop(now + 0.4);
-                } else if (type === 'fail') {
-                    osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(150, now);
-                    osc.frequency.linearRampToValueAtTime(100, now + 0.2);
-                    gain.gain.setValueAtTime(0.1, now);
-                    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
-                    osc.start(now);
-                    osc.stop(now + 0.3);
-                } else if (type === 'click') {
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(800, now);
-                    gain.gain.setValueAtTime(0.1, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
-                    osc.start(now);
-                    osc.stop(now + 0.05);
-                } else if (type === 'fanfare') {
-                    [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
-                        const o = this.ctx.createOscillator();
-                        const g = this.ctx.createGain();
-                        o.connect(g);
-                        g.connect(this.ctx.destination);
-                        o.frequency.setValueAtTime(freq, now + (i * 0.1));
-                        g.gain.setValueAtTime(0.2, now + (i * 0.1));
-                        g.gain.exponentialRampToValueAtTime(0.01, now + (i * 0.1) + 0.5);
-                        o.start(now + (i * 0.1));
-                        o.stop(now + (i * 0.1) + 0.5);
-                    });
-                }
-            }
-        };
-
-        // --- Data ---
-        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").map(l => ({word: l, type: "ABC"}));
-        const shortWordsList = [
-            "CAT", "DOG", "SUN", "BOX", "BAT", "BED", "CUP", "HAT", "PIG", "RED", "BIG", "TOP", "BUS", "PEN", "PIN",
-            "ANT", "BEE", "BUG", "FOX", "HEN", "OWL", "RAT", "ZIP", "WEB", "SKY", "FLY", "ICE", "TEA", "JAM", "NUT",
-            "POT", "PAN", "NET", "JET", "VAN", "WET", "HOT", "MAP", "LOG", "FAN", "BAG", "CAP", "HAM", "LEG", "MOP",
-            "ARM", "EAR", "EYE", "DIP", "DIG", "RUN", "HOP", "SIT", "CUT", "EAT", "TEN", "SIX", "ONE", "TWO", "BOY",
-            "MAN", "DAD", "MOM", "SON", "JOY", "SAD", "MAD", "BAD", "DAY", "KEY", "INK", "OIL", "JAR", "CAN", "GUM",
-            "LID", "POT", "TAG", "TUB", "WIG", "BUN", "FOR", "GET", "HAS", "HAD", "HIS", "HER", "HOW", "NOT", "NOW",
-            "OFF", "OLD", "OUR", "OUT", "PUT", "SAY", "SEE", "SHE", "THE", "TOO", "WAS", "WHO", "WHY", "YES", "YOU"
+        // Core Assets (Pre-K Friendly)
+        const ABC_POOL = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".split("");
+        const NUM_POOL = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"];
+        const ANIMAL_POOL = [
+            {e:"🐶",n:"Dog"},{e:"🐱",n:"Cat"},{e:"🐭",n:"Mouse"},{e:"🐰",n:"Bunny"},{e:"🦊",n:"Fox"},
+            {e:"🐻",n:"Bear"},{e:"🐼",n:"Panda"},{e:"🦁",n:"Lion"},{e:"🐮",n:"Cow"},{e:"🐷",n:"Pig"},
+            {e:"🐸",n:"Frog"},{e:"🐵",n:"Monkey"},{e:"🐔",n:"Hen"},{e:"🐧",n:"Penguin"},{e:"🐢",n:"Turtle"}
         ];
-        const shortWords = shortWordsList.map(w => ({word: w, type: "3LE"}));
-        const numbers = Array.from({length: 20}, (_, i) => ({word: (i + 1).toString(), type: "NUM"}));
+        const FRUIT_POOL = [
+            {e:"🍎",n:"Apple"},{e:"🍌",n:"Banana"},{e:"🍊",n:"Orange"},{e:"🍐",n:"Pear"},{e:"🍓",n:"Berry"},
+            {e:"🍇",n:"Grape"},{e:"🍉",n:"Melon"},{e:"🍒",n:"Cherry"},{e:"🍍",n:"Pine"},{e:"🍋",n:"Lemon"}
+        ];
 
-        const numMap = {
-            "1":"ONE","2":"TWO","3":"THREE","4":"FOUR","5":"FIVE","6":"SIX","7":"SEVEN","8":"EIGHT","9":"NINE","10":"TEN",
-            "11":"ELEVEN","12":"TWELVE","13":"THIRTEEN","14":"FOURTEEN","15":"FIFTEEN","16":"SIXTEEN","17":"SEVENTEEN","18":"EIGHTEEN","19":"NINETEEN","20":"TWENTY"
+        const STATE = {
+            score: parseInt(localStorage.getItem('marley_pk_stars') || 0),
+            mode: '',
+            questions: [],
+            currentIndex: 0,
+            isListening: false,
+            recognition: null
         };
 
-        let allWords = [...alphabet, ...shortWords, ...numbers];
-        let activeWords = allWords.sort(() => Math.random() - 0.5);
-        let currentIndex = 0;
-        let stars = 0;
-        let currentFontSize = 8;
-        let fontIndex = 1;
-        let isRecording = false;
-
-        // --- Speech Recognition ---
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        const recognition = SpeechRecognition ? new SpeechRecognition() : null;
-
-        if (recognition) {
-            recognition.lang = 'en-US';
-            recognition.interimResults = false;
-            recognition.maxAlternatives = 1;
-            recognition.onresult = (e) => evaluateAnswer(e.results[0][0].transcript.toUpperCase().trim(), e.results[0][0].confidence);
-            recognition.onend = () => resetMicUI();
-            recognition.onerror = () => { resetMicUI(); updateFeedback("Didn't catch that. Try again!", "text-orange-500"); };
+        // --- Voice ---
+        function speak(text) {
+            window.speechSynthesis.cancel();
+            const msg = new SpeechSynthesisUtterance(text);
+            msg.rate = 0.9;
+            msg.pitch = 1.3;
+            window.speechSynthesis.speak(msg);
         }
 
-        function toggleSpeech() {
-            SoundFX.play('click');
-            if (!recognition) return updateFeedback("Mic not supported.", "text-red-500");
-            isRecording ? recognition.stop() : (startMicUI(), recognition.start());
+        // --- Advanced Mic ---
+        function initMic() {
+            if (!('webkitSpeechRecognition' in window)) return;
+            STATE.recognition = new webkitSpeechRecognition();
+            STATE.recognition.lang = 'en-US';
+            STATE.recognition.onstart = () => {
+                STATE.isListening = true;
+                document.getElementById('mic-btn').classList.add('mic-pulse', 'bg-red-200');
+                document.getElementById('mic-status').innerText = "Marley is listening...";
+            };
+            STATE.recognition.onend = () => {
+                STATE.isListening = false;
+                document.getElementById('mic-btn').classList.remove('mic-pulse', 'bg-red-200');
+                document.getElementById('mic-status').innerText = "Tap & Say it!";
+            };
+            STATE.recognition.onresult = (e) => {
+                const heard = e.results[0][0].transcript.toLowerCase();
+                document.getElementById('heard-text').innerText = `You said: ${heard}`;
+                checkSpeech(heard);
+            };
         }
 
-        function startMicUI() {
-            isRecording = true;
-            document.getElementById('speakBtn').classList.add('mic-active');
-            document.getElementById('micIcon').classList.add('hidden');
-            document.getElementById('waveform').classList.remove('hidden');
-            document.getElementById('micBtnText').textContent = "LISTENING...";
-            document.getElementById('accuracyContainer').style.display = 'none';
+        function toggleMic() {
+            if (!STATE.recognition) return;
+            STATE.isListening ? STATE.recognition.stop() : STATE.recognition.start();
         }
 
-        function resetMicUI() {
-            isRecording = false;
-            document.getElementById('speakBtn').classList.remove('mic-active');
-            document.getElementById('micIcon').classList.remove('hidden');
-            document.getElementById('waveform').classList.add('hidden');
-            document.getElementById('micBtnText').textContent = "SAY IT";
+        // --- Data Gen (150 Items) ---
+        function build150(source, type) {
+            let result = [];
+            while(result.length < 150) {
+                let shuffled = [...source].sort(() => 0.5 - Math.random());
+                shuffled.forEach(item => {
+                    if(result.length >= 150) return;
+                    let correct = (typeof item === 'string') ? item : item.n;
+                    let display = (typeof item === 'string') ? item : item.e;
+                    
+                    // Generate options
+                    let pool = (typeof item === 'string') ? source : source.map(x => x.n);
+                    let others = pool.filter(x => x !== correct).sort(() => 0.5 - Math.random()).slice(0, 3);
+                    let opts = [correct, ...others].sort(() => 0.5 - Math.random());
+                    
+                    result.push({ d: display, n: correct, opts: opts });
+                });
+            }
+            return result;
         }
 
-        function evaluateAnswer(said, confidence) {
-            const target = activeWords[currentIndex].word.toUpperCase();
-            const targetAlt = numMap[target] || target;
-            const cleanedSaid = said.replace(/[^A-Z0-9]/g, "");
-            const accuracy = Math.round(confidence * 100);
+        // --- Game Flow ---
+        function goHome() {
+            document.getElementById('activity-view').classList.add('hidden-view');
+            document.getElementById('win-view').classList.add('hidden-view');
+            document.getElementById('home-btn').classList.add('hidden-view');
+            document.getElementById('home-view').classList.remove('hidden-view');
+            speak("Welcome back!");
+        }
+
+        function startActivity(type) {
+            STATE.mode = type;
+            STATE.currentIndex = 0;
             
-            document.getElementById('accuracyContainer').style.display = 'block';
+            if(type === 'abc') STATE.questions = build150(ABC_POOL);
+            else if(type === 'numbers') STATE.questions = build150(NUM_POOL);
+            else if(type === 'animals') STATE.questions = build150(ANIMAL_POOL);
+            else if(type === 'fruits') STATE.questions = build150(FRUIT_POOL);
+            else if(type === 'listening') {
+                const mega = [...ABC_POOL.slice(0,10), ...NUM_POOL, ...ANIMAL_POOL.map(x=>x.n)];
+                STATE.questions = build150(mega);
+            }
+            else if(type === 'speech') {
+                const mega = [...ANIMAL_POOL, ...FRUIT_POOL];
+                STATE.questions = build150(mega);
+            }
 
-            if (cleanedSaid === target || cleanedSaid === targetAlt || cleanedSaid.includes(target) || cleanedSaid.includes(targetAlt)) {
-                stars++;
-                SoundFX.play('success');
-                document.getElementById('starCount').textContent = stars;
-                document.getElementById('accuracyFill').style.width = accuracy + "%";
-                document.getElementById('accuracyFill').style.backgroundColor = accuracy > 80 ? "#58cc02" : "#ffc800";
-                updateFeedback(accuracy > 85 ? "Excellent! Perfect! 🌟" : "Good job! Keep practicing! 👍", "text-green-500");
-                document.getElementById('mainCard').classList.add('ring-8', 'ring-green-400');
-                setTimeout(() => { document.getElementById('mainCard').classList.remove('ring-8', 'ring-green-400'); changeIndex(1); }, 1500);
+            document.getElementById('home-view').classList.add('hidden-view');
+            document.getElementById('activity-view').classList.remove('hidden-view');
+            document.getElementById('home-btn').classList.remove('hidden-view');
+            renderQ();
+        }
+
+        function renderQ() {
+            const q = STATE.questions[STATE.currentIndex];
+            const title = document.getElementById('task-title');
+            const visual = document.getElementById('visual-content');
+            const grid = document.getElementById('options-grid');
+            const mic = document.getElementById('mic-area');
+            
+            document.getElementById('progress-bar').style.width = `${(STATE.currentIndex/150)*100}%`;
+            document.getElementById('current-count').innerText = STATE.currentIndex + 1;
+            document.getElementById('heard-text').innerText = '';
+            
+            grid.innerHTML = '';
+            mic.classList.add('hidden');
+
+            if(STATE.mode === 'listening') {
+                title.innerText = "Listen & Find!";
+                visual.innerHTML = `<button onclick="speak('${q.n}')" class="w-32 h-32 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-500"><i data-lucide="volume-2" class="w-16 h-16"></i></button>`;
+                speak(`Can you find ${q.n}?`);
+            } else if(STATE.mode === 'speech') {
+                title.innerText = "Can you say it?";
+                visual.innerText = q.d;
+                mic.classList.remove('hidden');
+                speak(`Can you say ${q.n}?`);
             } else {
-                SoundFX.play('fail');
-                document.getElementById('accuracyFill').style.width = "30%";
-                document.getElementById('accuracyFill').style.backgroundColor = "#ff4b4b";
-                updateFeedback(`I heard "${said}". Try again! 🔄`, "text-red-500");
-                document.getElementById('mainCard').classList.add('shake');
-                setTimeout(() => document.getElementById('mainCard').classList.remove('shake'), 400);
+                title.innerText = "Find the match!";
+                visual.innerText = q.d;
+                speak(`Find the ${q.n}`);
             }
-        }
 
-        function playWordAudio() {
-            SoundFX.play('click');
-            const utterance = new SpeechSynthesisUtterance(activeWords[currentIndex].word.toLowerCase());
-            utterance.lang = 'en-US';
-            utterance.rate = 0.8;
-            utterance.pitch = 1.1;
-            window.speechSynthesis.speak(utterance);
-        }
-
-        function updateUI() {
-            document.getElementById('mainWord').textContent = activeWords[currentIndex].word;
-            document.getElementById('progressText').textContent = `${currentIndex + 1} / ${activeWords.length}`;
-            updateFeedback("Listen then say the word!", "text-gray-400");
-            document.getElementById('accuracyContainer').style.display = 'none';
-        }
-
-        function changeIndex(delta) {
-            SoundFX.play('click');
-            currentIndex = (currentIndex + delta + activeWords.length) % activeWords.length;
-            if (currentIndex === 0 && delta > 0) {
-                SoundFX.play('fanfare');
-                showModal("🌈", "Superstar!", `You practiced ${activeWords.length} items!`);
+            if(q.opts && STATE.mode !== 'speech') {
+                q.opts.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = "bubble-btn bg-white border-4 border-gray-100 p-6 text-3xl font-black text-orange-600";
+                    btn.innerText = opt;
+                    btn.onclick = () => checkAns(opt);
+                    grid.appendChild(btn);
+                });
             }
-            updateUI();
+            lucide.createIcons();
         }
 
-        function filterType(type) {
-            SoundFX.play('click');
-            activeWords = (type === 'ABC' ? [...alphabet] : type === '3LE' ? [...shortWords] : [...numbers]).sort(() => Math.random() - 0.5);
-            currentIndex = 0;
-            updateUI();
+        function checkAns(val) {
+            if(val === STATE.questions[STATE.currentIndex].n) winQ();
+            else speak("Try again!");
         }
 
-        function adjustFontSize(delta) {
-            SoundFX.play('click');
-            currentFontSize = Math.max(3, Math.min(15, currentFontSize + delta));
-            document.getElementById('mainWord').style.fontSize = currentFontSize + "rem";
+        function checkSpeech(heard) {
+            const target = STATE.questions[STATE.currentIndex].n.toLowerCase();
+            if(heard.includes(target)) winQ();
+            else speak(`I heard ${heard}. Try again!`);
         }
 
-        function cycleFont() {
-            SoundFX.play('click');
-            document.getElementById('mainWord').classList.remove(`font-kids-${fontIndex}`);
-            fontIndex = (fontIndex % 3) + 1;
-            document.getElementById('mainWord').classList.add(`font-kids-${fontIndex}`);
+        function winQ() {
+            STATE.score += 5;
+            localStorage.setItem('marley_pk_stars', STATE.score);
+            document.getElementById('global-score').innerText = STATE.score;
+            
+            popConfetti();
+            const praises = ["Yay!", "Super!", "Good job!", "Marley is happy!", "Wow!"];
+            speak(praises[Math.floor(Math.random()*praises.length)]);
+
+            setTimeout(() => {
+                if(STATE.currentIndex < 149) {
+                    STATE.currentIndex++;
+                    renderQ();
+                } else {
+                    document.getElementById('activity-view').classList.add('hidden-view');
+                    document.getElementById('win-view').classList.remove('hidden-view');
+                    speak("You are a superstar!");
+                }
+            }, 800);
         }
 
-        function updateFeedback(text, colorClass) {
-            const f = document.getElementById('feedbackText');
-            f.textContent = text;
-            f.className = `text-xl font-bold text-center px-4 h-16 flex items-center justify-center ${colorClass}`;
-        }
-
-        function toggleTheme() {
-            SoundFX.play('click');
-            const isDark = document.documentElement.classList.toggle('dark');
-            document.getElementById('moonIcon').classList.toggle('hidden', isDark);
-            document.getElementById('sunIcon').classList.toggle('hidden', !isDark);
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        }
-
-        function showModal(icon, title, msg) {
-            document.getElementById('modalIcon').textContent = icon;
-            document.getElementById('modalTitle').textContent = title;
-            document.getElementById('modalMsg').textContent = msg;
-            document.getElementById('modal').classList.remove('hidden');
-        }
-
-        function closeModal() {
-            SoundFX.play('click');
-            document.getElementById('modal').classList.add('hidden');
+        function popConfetti() {
+            const colors = ['#f00','#0f0','#00f','#ff0','#f0f'];
+            for(let i=0; i<15; i++) {
+                const c = document.createElement('div');
+                c.className = 'confetti';
+                c.style.left = Math.random() * 100 + 'vw';
+                c.style.top = '-10px';
+                c.style.backgroundColor = colors[Math.floor(Math.random()*5)];
+                document.getElementById('confetti-layer').appendChild(c);
+                c.animate([{transform:'translateY(0)',opacity:1},{transform:'translateY(100vh)',opacity:0}],{duration:1000}).onfinish=()=>c.remove();
+            }
         }
 
         window.onload = () => {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                document.documentElement.classList.add('dark');
-                document.getElementById('moonIcon').classList.add('hidden');
-                document.getElementById('sunIcon').classList.remove('hidden');
-            }
-            updateUI();
+            document.getElementById('global-score').innerText = STATE.score;
+            initMic();
+            lucide.createIcons();
         };
     </script>
 </body>
