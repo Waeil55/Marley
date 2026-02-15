@@ -312,12 +312,11 @@
             loadV();
             if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = loadV;
             
-            // MIC UPDATE: Initialize specialized recognition object for faster response
             if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
                 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
                 state.rec = new SpeechRecognition();
-                state.rec.continuous = false; // "Not always on" - process in bursts
-                state.rec.interimResults = true; // "Fast" - evaluate before sentence ends
+                state.rec.continuous = false; 
+                state.rec.interimResults = true; 
                 state.rec.lang = 'en-US';
             }
 
@@ -400,7 +399,6 @@
             const idx = Math.round(scrollTop / vh);
 
             if(idx !== state.idx) {
-                // MIC UPDATE: Stop any active listening when scrolling
                 stopMicInternal();
                 
                 state.timers.forEach(clearInterval);
@@ -417,11 +415,6 @@
                 const item = state.pool[idx];
                 setTimeout(() => speak(getQuestionText(item), state.audioRequestId), 500);
                 if (item.type === "game") setTimeout(() => runGame(idx), 600);
-                
-                // MIC UPDATE: Auto-start for Mic reels but handle it cleaner
-                if (item.type === "spell") {
-                    setTimeout(() => { if(state.idx === idx) startMic(idx, item.v, true); }, 1800);
-                }
             }
         }
 
@@ -474,7 +467,6 @@
             state.timers.forEach(clearInterval); 
             updateScore(); speak("You did it!", state.audioRequestId);
             celebrate(innerWidth/2, innerHeight/2);
-            setTimeout(nxt, 2200);
         }
 
         function checkPick(i, p, m, b) {
@@ -482,7 +474,6 @@
                 b.classList.add('correct');
                 updateScore(); celebrate(innerWidth/2, innerHeight/2);
                 speak("Great job!", state.audioRequestId);
-                setTimeout(nxt, 2200);
             } else {
                 speak("Try again", state.audioRequestId);
                 b.style.transform = "translateX(10px)";
@@ -491,8 +482,7 @@
             }
         }
 
-        // MIC UPDATE: Optimized Fast Recognition
-        function startMic(idx, t, isAuto = false) {
+        function startMic(idx, t) {
             if (!state.rec || state.idx !== idx) return;
             const btn = document.getElementById(`mic-${idx}`);
             const container = document.getElementById(`mic-container-${idx}`);
@@ -504,29 +494,24 @@
             
             try { 
                 state.rec.start(); 
-            } catch(e) { console.warn("Mic already active"); }
+            } catch(e) {}
 
             state.rec.onresult = (e) => {
-                // Loop through all results (interim and final) for "Immediate" evaluation
                 for (let i = e.resultIndex; i < e.results.length; ++i) {
                     const heard = e.results[i][0].transcript.toLowerCase();
                     const target = t.toLowerCase();
                     
-                    // Fast check for word match
                     if (heard.includes(target)) {
                         stopMicInternal();
                         updateScore(); 
                         celebrate(innerWidth/2, innerHeight/2); 
                         speak("Perfect!", state.audioRequestId);
-                        setTimeout(nxt, 1800);
-                        return; // Exit on match
+                        return;
                     }
                 }
             };
 
             state.rec.onend = () => {
-                // If we haven't matched yet and still on this card, restart once to keep "listening"
-                // But only if we are still marked as listening
                 if (state.isMicListening && state.idx === idx) {
                     try { state.rec.start(); } catch(err) { state.isMicListening = false; }
                 } else {
@@ -535,7 +520,6 @@
             };
             
             state.rec.onerror = (e) => {
-                console.error("Mic Error:", e.error);
                 if (e.error !== 'no-speech') {
                     stopMicInternal();
                 }
@@ -553,16 +537,9 @@
 
         function updateScore() {
             state.score += 10;
-            document.getElementById('score-val').innerText = state.score;
+            const scoreEl = document.getElementById('score-val');
+            if(scoreEl) scoreEl.innerText = state.score;
             localStorage.setItem('marley_prek_score', state.score);
-        }
-
-        function nxt() {
-            state.isAutoScrolling = true;
-            const feed = document.getElementById('shorts-feed');
-            const vh = window.innerHeight;
-            feed.scrollTo({top: (state.idx + 1) * vh, behavior: 'smooth'});
-            setTimeout(() => { state.isAutoScrolling = false; }, 1000);
         }
 
         function celebrate(x, y) {
