@@ -149,22 +149,30 @@
         .opt-bubble.correct { background: #22c55e !important; border-color: #fff; transform: scale(1.05); }
 
         .mic-btn { 
-            width: 120px; height: 120px; 
-            background: rgba(255, 255, 255, 0.15); 
+            width: 140px; height: 140px; 
+            background: rgba(255, 255, 255, 0.1); 
             border-radius: 50%; 
             display: flex; align-items: center; justify-content: center; 
-            border: 4px solid rgba(255, 255, 255, 0.4); 
+            border: 6px solid rgba(255, 255, 255, 0.3); 
             margin-top: 20px; 
             cursor: pointer; pointer-events: auto; 
             transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
         }
         .mic-btn:active { transform: scale(0.9); }
-        .mic-btn.active { background: #ef4444; border-color: #fff; box-shadow: 0 0 60px #ef4444; animation: pulse-mic 0.8s infinite; }
+        .mic-btn.active { background: #ef4444; border-color: #fff; box-shadow: 0 0 80px #ef4444; animation: pulse-mic 1s infinite; }
 
-        .game-overlay { position: absolute; inset: 0; width: 100vw; height: 100vh; z-index: 20; pointer-events: auto; overflow: hidden; }
-        .game-obj { position: absolute; cursor: pointer; will-change: transform, left, top; }
-        .pop-obj { width: 130px; height: 130px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; animation: float-up-game var(--d) linear forwards; }
-        @keyframes float-up-game { from { transform: translateY(110vh); } to { transform: translateY(-20vh); } }
+        .mic-vol-ring {
+            position: absolute;
+            inset: -15px;
+            border: 5px solid #ef4444;
+            border-radius: 50%;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: transform 0.05s linear;
+            pointer-events: none;
+        }
+        .mic-btn.active .mic-vol-ring { opacity: 0.6; }
 
         .yt-nav { 
             position: fixed; bottom: 0; left: 0; width: 100%; 
@@ -176,22 +184,20 @@
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; opacity: 0.8; }
         .nav-label { font-size: 10px; font-weight: 500; margin-top: 2px; }
 
-        @keyframes pulse-mic { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        @keyframes pulse-mic { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
         
         .confetti { position: absolute; pointer-events: none; z-index: 1000; animation: pop-confetti 1.2s ease-out forwards; font-size: 3rem; }
         @keyframes pop-confetti { 0% { transform: translate(0,0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) rotate(360deg) scale(0); opacity: 0; } }
 
         .score-display { position: fixed; top: calc(var(--safe-top) + 12px); right: 110px; z-index: 1001; font-weight: 900; color: #ffd700; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         
-        .mic-listening-visual {
-            position: absolute; bottom: 140px; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 4px; height: 20px; align-items: center; opacity: 0; transition: opacity 0.3s;
+        .status-pill {
+            position: absolute; bottom: 170px; left: 50%; transform: translateX(-50%);
+            background: rgba(239, 68, 68, 0.9); color: white; padding: 4px 12px; border-radius: 100px;
+            font-size: 12px; font-weight: 700; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+            display: flex; align-items: center; gap: 6px;
         }
-        .active-visual .mic-listening-visual { opacity: 1; }
-        .wave-bar { width: 4px; height: 100%; background: #ef4444; border-radius: 2px; animation: wave 1s ease-in-out infinite; }
-        .wave-bar:nth-child(2) { animation-delay: 0.1s; }
-        .wave-bar:nth-child(3) { animation-delay: 0.2s; }
-        @keyframes wave { 0%, 100% { height: 4px; } 50% { height: 20px; } }
+        .active-visual .status-pill { opacity: 1; }
     </style>
 </head>
 <body>
@@ -207,9 +213,7 @@
         </div>
     </div>
 
-    <div class="score-display">
-        <span id="score-val">0</span> ⭐
-    </div>
+    <div class="score-display"><span id="score-val">0</span> ⭐</div>
 
     <div id="shorts-feed" class="shorts-wrapper"></div>
 
@@ -223,21 +227,9 @@
 
     <script>
         const APP_ICON = "https://raw.githubusercontent.com/Waeil55/Marley/main/Y.JPG";
-        
         const EASY_WORDS = ["GO", "HI", "YOU", "ME", "BYE", "UP", "IN", "ON", "AT", "IT", "TO", "WE", "HE", "BE", "NO", "DO", "AM", "MY", "SUN", "RUN", "FUN", "BUS", "CAR", "BOY", "TOY", "RED", "SIX", "TEN", "ONE", "TWO", "HAT", "BED", "CUP", "MOM", "DAD", "PAW", "SEA", "SKY", "ICE", "TEA", "EAT", "INK", "BAG", "MUG", "KEY", "CAN", "PAN", "FAN", "VAN", "YES", "EYE", "ARM", "LEG", "NET", "PET", "WET", "LET", "GET", "DOT", "HOT", "NOT", "TOP", "HOP", "MOP", "POP", "NAP", "LAP", "TAP", "CAP", "MAP", "JAR", "TAX"];
-        
-        const ANIMALS = [
-            {v: "CAT", e: "🐱"}, {v: "DOG", e: "🐶"}, {v: "PIG", e: "🐷"}, 
-            {v: "COW", e: "🐮"}, {v: "ANT", e: "🐜"}, {v: "BEE", e: "🐝"}, 
-            {v: "HEN", e: "🐔"}, {v: "FOX", e: "🦊"}, {v: "OWL", e: "🦉"}, 
-            {v: "BUG", e: "🐛"}, {v: "BAT", e: "🦇"}, {v: "RAT", e: "🐭"}
-        ];
-
-        const FRUITS = [
-            {v: "PEA", e: "🫛"}, {v: "NUT", e: "🥜"}, {v: "FIG", e: "🍐"},
-            {v: "BUN", e: "🥯"}, {v: "EGG", e: "🥚"}, {v: "JAM", e: "🫙"}
-        ];
-
+        const ANIMALS = [{v: "CAT", e: "🐱"}, {v: "DOG", e: "🐶"}, {v: "PIG", e: "🐷"}, {v: "COW", e: "🐮"}, {v: "ANT", e: "🐜"}, {v: "BEE", e: "🐝"}, {v: "HEN", e: "🐔"}, {v: "FOX", e: "🦊"}, {v: "OWL", e: "🦉"}, {v: "BUG", e: "🐛"}, {v: "BAT", e: "🦇"}, {v: "RAT", e: "🐭"}];
+        const FRUITS = [{v: "PEA", e: "🫛"}, {v: "NUT", e: "🥜"}, {v: "FIG", e: "🍐"}, {v: "BUN", e: "🥯"}, {v: "EGG", e: "🥚"}, {v: "JAM", e: "🫙"}];
         const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
         const NUMBERS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
         const EMOJIS = ["🎈", "🌟", "🦁", "🐶", "🍓", "🚗", "🍎", "🐱", "🍦", "⚽", "🌈", "🍕"];
@@ -250,8 +242,11 @@
             isMicListening: false,
             audioRequestId: 0,
             pool: [],
-            isAutoScrolling: false,
-            score: parseInt(localStorage.getItem('marley_prek_score') || 0)
+            score: parseInt(localStorage.getItem('marley_prek_score') || 0),
+            audioCtx: null,
+            analyser: null,
+            micStream: null,
+            lastResult: ""
         };
 
         function buildPool() {
@@ -261,27 +256,14 @@
             FRUITS.forEach(f => questions.push({v: f.v, icon: f.e, type: "visual", color: "#22c55e"}));
             LETTERS.forEach(l => questions.push({v: l, type: "pick", color: "#f59e0b"}));
             NUMBERS.forEach(n => questions.push({v: n, type: "pick", color: "#10b981"}));
-            
             questions.sort(() => Math.random() - 0.5);
-
             let final = [];
             let qIdx = 0;
             const gameTypes = ["pop", "catch", "tap"];
-            
             for(let i=0; i < 300; i++) {
-                if(i > 0 && i % 4 === 3) {
-                    final.push({
-                        type: "game",
-                        gameType: gameTypes[Math.floor(i/4) % gameTypes.length],
-                        emoji: EMOJIS[Math.floor(i/4) % EMOJIS.length],
-                        color: "#ff0055"
-                    });
-                } else if (i > 0 && i % 3 === 2) {
-                    const word = EASY_WORDS[Math.floor(Math.random()*EASY_WORDS.length)];
-                    final.push({v: word, type: "spell", color: "#FFAC1C"});
-                } else {
-                    if(questions[qIdx]) final.push(questions[qIdx++]);
-                }
+                if(i > 0 && i % 4 === 3) final.push({type: "game", gameType: gameTypes[Math.floor(i/4) % gameTypes.length], emoji: EMOJIS[Math.floor(i/4) % EMOJIS.length], color: "#ff0055"});
+                else if (i > 0 && i % 3 === 2) final.push({v: EASY_WORDS[Math.floor(Math.random()*EASY_WORDS.length)], type: "spell", color: "#FFAC1C"});
+                else if(questions[qIdx]) final.push(questions[qIdx++]);
             }
             state.pool = final;
         }
@@ -290,10 +272,31 @@
             window.speechSynthesis.cancel();
             if (requestId !== state.audioRequestId) return;
             const u = new SpeechSynthesisUtterance(text.toLowerCase());
-            const v = state.voices.find(v => v.lang.startsWith("en") && (v.name.includes("Google") || v.name.includes("Natural") || v.name.includes("Samantha")));
+            const v = state.voices.find(v => v.lang.startsWith("en") && (v.name.includes("Google") || v.name.includes("Natural")));
             if(v) u.voice = v;
-            u.pitch = 1.35; u.rate = 0.85;
+            u.pitch = 1.3; u.rate = 0.9;
             window.speechSynthesis.speak(u);
+        }
+
+        async function initAudioVisuals() {
+            if (state.audioCtx) return;
+            try {
+                state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                state.analyser = state.audioCtx.createAnalyser();
+                state.micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                state.audioCtx.createMediaStreamSource(state.micStream).connect(state.analyser);
+                const update = () => {
+                    if (state.isMicListening && state.analyser) {
+                        const data = new Uint8Array(state.analyser.frequencyBinCount);
+                        state.analyser.getByteFrequencyData(data);
+                        let avg = data.reduce((a,b) => a+b) / data.length;
+                        const ring = document.querySelector('.mic-btn.active .mic-vol-ring');
+                        if (ring) ring.style.transform = `scale(${1 + (avg / 100)})`;
+                    }
+                    requestAnimationFrame(update);
+                };
+                update();
+            } catch(e) { console.error("Mic access denied", e); }
         }
 
         function init() {
@@ -312,14 +315,11 @@
             loadV();
             if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = loadV;
             
-            // MIC UPDATE: Initialize specialized recognition object for maximum sensitivity
-            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                state.rec = new SpeechRecognition();
-                state.rec.continuous = true; // High sensitivity processing
-                state.rec.interimResults = true; // Respond before user finishes
+            if ('webkitSpeechRecognition' in window) {
+                state.rec = new webkitSpeechRecognition();
+                state.rec.continuous = true;
+                state.rec.interimResults = true;
                 state.rec.lang = 'en-US';
-                state.rec.maxAlternatives = 1;
             }
 
             feed.addEventListener('scroll', handleScroll, {passive: true});
@@ -329,9 +329,8 @@
         }
 
         function getQuestionText(item) {
-            if (item.type === "game") return item.gameType === "pop" ? "Pop all the bubbles!" : (item.gameType === "catch" ? "Catch it!" : "Tap the emoji!");
+            if (item.type === "game") return item.gameType === "pop" ? "Pop all!" : (item.gameType === "catch" ? "Catch it!" : "Tap tap!");
             if (item.type === "spell") return `Can you say ${item.v}?`;
-            if (item.type === "visual") return `Find the word ${item.v}`;
             return `Find ${item.v}`;
         }
 
@@ -343,7 +342,7 @@
             let capStr = "";
 
             if (item.type === "game") {
-                content = `<div class="game-overlay" id="game-overlay-${i}"></div><div class="main-canvas" style="opacity:0.2; transform: scale(0.9)"><div class="edu-animation">GAME</div></div>`;
+                content = `<div class="game-overlay" id="game-overlay-${i}"></div><div class="main-canvas" style="opacity:0.2"><div class="edu-animation">GAME</div></div>`;
                 capStr = item.gameType === "pop" ? "Pop all the bubbles!" : (item.gameType === "catch" ? "Catch it!" : "Tap the emoji!");
             } else if (item.type === "spell") {
                 content = `
@@ -351,25 +350,25 @@
                         <div class="edu-animation">${item.v}</div>
                         <div id="mic-container-${i}">
                             <button id="mic-${i}" onclick="startMic(${i}, '${item.v}')" class="mic-btn">
-                                <i data-lucide="mic" class="w-16 h-16 text-white"></i>
+                                <div class="mic-vol-ring"></div>
+                                <i data-lucide="mic" class="w-20 h-20 text-white"></i>
                             </button>
-                            <div class="mic-listening-visual">
-                                <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                            <div class="status-pill">
+                                <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div> LISTENING...
                             </div>
                         </div>
                     </div>`;
                 capStr = `Can you say ${item.v}?`;
-            } else if (item.type === "pick" || item.type === "visual") {
-                let matchVal = item.v;
-                let opts = [matchVal];
+            } else {
+                let opts = [item.v];
                 while(opts.length < 4) {
                     let r = EASY_WORDS[Math.floor(Math.random()*EASY_WORDS.length)];
                     if(!opts.includes(r)) opts.push(r);
                 }
                 opts.sort(() => Math.random() - 0.5);
                 const visual = item.type === "visual" ? `<div class="text-9xl">${item.icon}</div>` : item.v;
-                content = `<div class="main-canvas"><div class="edu-animation">${visual}</div><div class="grid-opts">${opts.map(o => `<button onclick="checkPick(${i}, '${o}', '${matchVal}', this)" class="opt-bubble">${o}</button>`).join('')}</div></div>`;
-                capStr = `Find the word ${matchVal}`;
+                content = `<div class="main-canvas"><div class="edu-animation">${visual}</div><div class="grid-opts">${opts.map(o => `<button onclick="checkPick(${i}, '${o}', '${item.v}', this)" class="opt-bubble">${o}</button>`).join('')}</div></div>`;
+                capStr = `Find the word ${item.v}`;
             }
 
             card.innerHTML = `
@@ -378,41 +377,32 @@
                 <div class="sidebar">
                     <div class="profile-box"><img src="${APP_ICON}" class="profile-img"><div class="plus-icon">+</div></div>
                     <div class="sidebar-btn" onclick="celebrate(innerWidth/2, innerHeight/2)"><i data-lucide="thumbs-up" class="sidebar-icon"></i><span class="sidebar-label">12K</span></div>
-                    <div class="sidebar-btn"><i data-lucide="thumbs-down" class="sidebar-icon"></i><span class="sidebar-label">Dislike</span></div>
                     <div class="sidebar-btn"><i data-lucide="message-square" class="sidebar-icon"></i><span class="sidebar-label">428</span></div>
                     <div class="sidebar-btn"><i data-lucide="share-2" class="sidebar-icon"></i><span class="sidebar-label">Share</span></div>
-                    <div class="sidebar-btn"><i data-lucide="repeat" class="sidebar-icon"></i><span class="sidebar-label">Remix</span></div>
                     <div class="audio-disc"><img src="${APP_ICON}" class="w-full h-full object-cover"></div>
                 </div>
                 <div class="bottom-ui">
                     <div class="handle-row">@marley_world <span class="sub-btn">Subscribe</span></div>
                     <div class="caption">${capStr}</div>
-                    <div class="audio-row"><i data-lucide="music" class="w-4 h-4"></i> Original sound - Marley Pre-K</div>
+                    <div class="audio-row"><i data-lucide="music" class="w-4 h-4"></i> Original sound - Marley</div>
                 </div>
             `;
             lucide.createIcons();
         }
 
         function handleScroll() {
-            if (state.isAutoScrolling) return;
             const feed = document.getElementById('shorts-feed');
-            const vh = window.innerHeight;
-            const scrollTop = feed.scrollTop;
-            const idx = Math.round(scrollTop / vh);
-
+            const idx = Math.round(feed.scrollTop / window.innerHeight);
             if(idx !== state.idx) {
-                stopMicInternal(); // Ensure mic shuts down on swipe
-                
+                stopMicInternal();
                 state.timers.forEach(clearInterval);
                 state.timers = [];
                 state.audioRequestId++;
                 state.idx = idx; 
-                
                 document.querySelectorAll('.short-card').forEach((c, i) => {
                     if (Math.abs(i - idx) > 1) c.innerHTML = '';
                     else renderCard(i);
                 });
-
                 document.querySelectorAll('.fill').forEach((f, i) => f.style.width = i <= idx ? '100%' : '0');
                 const item = state.pool[idx];
                 setTimeout(() => speak(getQuestionText(item), state.audioRequestId), 500);
@@ -420,55 +410,46 @@
             }
         }
 
-        function runGame(idx) {
-            const item = state.pool[idx];
-            const zone = document.getElementById(`game-overlay-${idx}`);
-            if(!zone) return;
+        async function startMic(idx, targetText) {
+            if (!state.rec || state.idx !== idx) return;
+            if (state.isMicListening) { stopMicInternal(); return; }
+            
+            await initAudioVisuals();
+            state.isMicListening = true;
+            
+            const btn = document.getElementById(`mic-${idx}`);
+            const container = document.getElementById(`mic-container-${idx}`);
+            btn.classList.add('active');
+            container.classList.add('active-visual');
 
-            if(item.gameType === "pop") {
-                const sp = () => {
-                    if(zone.children.length > 8) return;
-                    const b = document.createElement('div'); b.className = 'game-obj pop-obj';
-                    b.innerHTML = `<span style="font-size: 4rem">${item.emoji}</span>`;
-                    b.style.left = (Math.random() * 75 + 10) + '%';
-                    b.style.setProperty('--d', (3 + Math.random() * 2) + 's');
-                    b.onpointerdown = (e) => {
-                        celebrate(e.clientX, e.clientY); b.style.transform = "scale(0)"; b.style.opacity = "0";
-                        setTimeout(() => b.remove(), 100);
-                        if(Math.random() > 0.8) winGame();
-                    };
-                    zone.appendChild(b);
-                    setTimeout(() => { if(b.parentNode) b.remove(); }, 5000);
-                };
-                state.timers.push(setInterval(sp, 600));
-            } else if(item.gameType === "catch") {
-                const b = document.createElement('div'); b.className = 'game-obj'; b.innerHTML = `<span style="font-size: 8rem">${item.emoji}</span>`;
-                b.style.left = '50%'; b.style.top = '50%';
-                const mv = () => {
-                    b.style.left = (Math.random() * 60 + 20) + '%';
-                    b.style.top = (Math.random() * 40 + 20) + '%';
-                };
-                b.onpointerdown = (e) => { celebrate(e.clientX, e.clientY); winGame(); };
-                zone.appendChild(b);
-                state.timers.push(setInterval(mv, 700));
-                mv();
-            } else if(item.gameType === "tap") {
-                const b = document.createElement('div'); b.className = 'game-obj'; b.innerHTML = `<span style="font-size: 10rem">${item.emoji}</span>`;
-                b.style.left = '50%'; b.style.top = '40%'; b.style.transform = 'translate(-50%, -50%)';
-                let h = 0;
-                b.onpointerdown = (e) => {
-                    h++; celebrate(e.clientX, e.clientY);
-                    b.style.transform = `translate(-50%, -50%) scale(${1 + h * 0.25}) rotate(${h * 25}deg)`;
-                    if(h >= 5) winGame();
-                };
-                zone.appendChild(b);
-            }
+            const target = targetText.toLowerCase().trim();
+            
+            state.rec.onresult = (e) => {
+                for (let i = e.resultIndex; i < e.results.length; ++i) {
+                    const heard = e.results[i][0].transcript.toLowerCase();
+                    // INTERIM MATCHING: Check immediately if the word is anywhere in the transcript
+                    if (heard.includes(target)) {
+                        state.rec.onresult = null; // Prevent double trigger
+                        stopMicInternal();
+                        updateScore();
+                        celebrate(innerWidth/2, innerHeight/2);
+                        speak("Perfect!", state.audioRequestId);
+                        return;
+                    }
+                }
+            };
+
+            state.rec.onerror = () => stopMicInternal();
+            state.rec.onend = () => { if (state.isMicListening) state.rec.start(); };
+            
+            try { state.rec.start(); } catch(err) {}
         }
 
-        function winGame() {
-            state.timers.forEach(clearInterval); 
-            updateScore(); speak("You did it!", state.audioRequestId);
-            celebrate(innerWidth/2, innerHeight/2);
+        function stopMicInternal() {
+            state.isMicListening = false;
+            if(state.rec) try { state.rec.stop(); } catch(e) {}
+            document.querySelectorAll('.mic-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('[id^="mic-container-"]').forEach(c => c.classList.remove('active-visual'));
         }
 
         function checkPick(i, p, m, b) {
@@ -478,90 +459,48 @@
                 speak("Great job!", state.audioRequestId);
             } else {
                 speak("Try again", state.audioRequestId);
-                b.style.transform = "translateX(10px)";
-                setTimeout(() => b.style.transform = "translateX(-10px)", 100);
-                setTimeout(() => b.style.transform = "translateX(0)", 200);
             }
-        }
-
-        // MIC UPDATE: ULTRA FAST EVALUATION
-        function startMic(idx, t) {
-            if (!state.rec || state.idx !== idx) return;
-            const btn = document.getElementById(`mic-${idx}`);
-            const container = document.getElementById(`mic-container-${idx}`);
-            if (!btn || state.isMicListening) return;
-
-            state.isMicListening = true;
-            btn.classList.add('active');
-            if(container) container.classList.add('active-visual');
-            
-            try { 
-                state.rec.start(); 
-            } catch(e) {}
-
-            state.rec.onresult = (e) => {
-                // Check all results in real-time
-                for (let i = e.resultIndex; i < e.results.length; ++i) {
-                    const heard = e.results[i][0].transcript.toLowerCase().trim();
-                    const target = t.toLowerCase().trim();
-                    
-                    // Respond immediately if word is detected in speech buffer
-                    if (heard.includes(target) || heard.split(' ').includes(target)) {
-                        stopMicInternal();
-                        updateScore(); 
-                        celebrate(innerWidth/2, innerHeight/2); 
-                        speak("Perfect!", state.audioRequestId);
-                        return;
-                    }
-                }
-            };
-
-            state.rec.onend = () => {
-                // Keep the mic "listening" while button is active and we are on this card
-                if (state.isMicListening && state.idx === idx) {
-                    try { state.rec.start(); } catch(err) { state.isMicListening = false; }
-                } else {
-                    state.isMicListening = false;
-                    btn.classList.remove('active');
-                    if(container) container.classList.remove('active-visual');
-                }
-            };
-            
-            state.rec.onerror = (e) => {
-                if (e.error !== 'no-speech') {
-                    stopMicInternal();
-                }
-            };
-        }
-
-        function stopMicInternal() {
-            state.isMicListening = false;
-            if(state.rec) {
-                try { state.rec.stop(); } catch(e) {}
-            }
-            document.querySelectorAll('.mic-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('[id^="mic-container-"]').forEach(c => c.classList.remove('active-visual'));
         }
 
         function updateScore() {
             state.score += 10;
-            const scoreEl = document.getElementById('score-val');
-            if(scoreEl) scoreEl.innerText = state.score;
+            document.getElementById('score-val').innerText = state.score;
             localStorage.setItem('marley_prek_score', state.score);
         }
 
         function celebrate(x, y) {
-            const items = ['🌟','🎈','🌈','🍎','🍓','🍭','🧁','✨','❤️'];
-            for(let i=0; i<20; i++) {
+            const items = ['🌟','🎈','🌈','🍎','🍭','✨','❤️'];
+            for(let i=0; i<15; i++) {
                 const c = document.createElement('div'); c.className = 'confetti';
                 c.innerHTML = items[Math.floor(Math.random()*items.length)];
                 c.style.left = x + 'px'; c.style.top = y + 'px';
-                c.style.setProperty('--tx', (Math.random()-0.5) * 600 + 'px');
-                c.style.setProperty('--ty', (Math.random()-0.5) * 600 + 'px');
+                c.style.setProperty('--tx', (Math.random()-0.5) * 400 + 'px');
+                c.style.setProperty('--ty', (Math.random()-0.5) * 400 + 'px');
                 document.body.appendChild(c);
                 setTimeout(() => c.remove(), 1200);
             }
         }
+
+        function runGame(idx) {
+            const item = state.pool[idx];
+            const zone = document.getElementById(`game-overlay-${idx}`);
+            if(!zone) return;
+            if(item.gameType === "pop") {
+                const sp = () => {
+                    const b = document.createElement('div'); b.style.position = 'absolute';
+                    b.innerHTML = `<span style="font-size: 4rem">${item.emoji}</span>`;
+                    b.style.left = (Math.random() * 80 + 10) + '%';
+                    b.style.bottom = '-100px';
+                    b.style.transition = 'transform 3s linear';
+                    zone.appendChild(b);
+                    setTimeout(() => b.style.transform = 'translateY(-120vh)', 50);
+                    b.onpointerdown = (e) => { celebrate(e.clientX, e.clientY); b.remove(); updateScore(); };
+                    setTimeout(() => b.remove(), 4000);
+                };
+                state.timers.push(setInterval(sp, 800));
+            }
+        }
+
         window.onload = init;
     </script>
 </body>
