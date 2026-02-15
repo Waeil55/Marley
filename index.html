@@ -312,12 +312,14 @@
             loadV();
             if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = loadV;
             
+            // MIC UPDATE: Initialize specialized recognition object for maximum sensitivity
             if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
                 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
                 state.rec = new SpeechRecognition();
-                state.rec.continuous = false; 
-                state.rec.interimResults = true; 
+                state.rec.continuous = true; // High sensitivity processing
+                state.rec.interimResults = true; // Respond before user finishes
                 state.rec.lang = 'en-US';
+                state.rec.maxAlternatives = 1;
             }
 
             feed.addEventListener('scroll', handleScroll, {passive: true});
@@ -399,7 +401,7 @@
             const idx = Math.round(scrollTop / vh);
 
             if(idx !== state.idx) {
-                stopMicInternal();
+                stopMicInternal(); // Ensure mic shuts down on swipe
                 
                 state.timers.forEach(clearInterval);
                 state.timers = [];
@@ -482,6 +484,7 @@
             }
         }
 
+        // MIC UPDATE: ULTRA FAST EVALUATION
         function startMic(idx, t) {
             if (!state.rec || state.idx !== idx) return;
             const btn = document.getElementById(`mic-${idx}`);
@@ -497,11 +500,13 @@
             } catch(e) {}
 
             state.rec.onresult = (e) => {
+                // Check all results in real-time
                 for (let i = e.resultIndex; i < e.results.length; ++i) {
-                    const heard = e.results[i][0].transcript.toLowerCase();
-                    const target = t.toLowerCase();
+                    const heard = e.results[i][0].transcript.toLowerCase().trim();
+                    const target = t.toLowerCase().trim();
                     
-                    if (heard.includes(target)) {
+                    // Respond immediately if word is detected in speech buffer
+                    if (heard.includes(target) || heard.split(' ').includes(target)) {
                         stopMicInternal();
                         updateScore(); 
                         celebrate(innerWidth/2, innerHeight/2); 
@@ -512,10 +517,13 @@
             };
 
             state.rec.onend = () => {
+                // Keep the mic "listening" while button is active and we are on this card
                 if (state.isMicListening && state.idx === idx) {
                     try { state.rec.start(); } catch(err) { state.isMicListening = false; }
                 } else {
                     state.isMicListening = false;
+                    btn.classList.remove('active');
+                    if(container) container.classList.remove('active-visual');
                 }
             };
             
