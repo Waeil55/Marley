@@ -187,7 +187,7 @@
             position: absolute; bottom: 140px; left: 50%; transform: translateX(-50%);
             display: flex; gap: 4px; height: 20px; align-items: center; opacity: 0; transition: opacity 0.3s;
         }
-        .active .mic-listening-visual { opacity: 1; }
+        .active-visual .mic-listening-visual { opacity: 1; }
         .wave-bar { width: 4px; height: 100%; background: #ef4444; border-radius: 2px; animation: wave 1s ease-in-out infinite; }
         .wave-bar:nth-child(2) { animation-delay: 0.1s; }
         .wave-bar:nth-child(3) { animation-delay: 0.2s; }
@@ -247,6 +247,7 @@
             timers: [],
             voices: [],
             rec: null,
+            isMicListening: false,
             audioRequestId: 0,
             pool: [],
             isAutoScrolling: false,
@@ -267,7 +268,6 @@
             let qIdx = 0;
             const gameTypes = ["pop", "catch", "tap"];
             
-            // Layout: Reel 1 (Pick), Reel 2 (Pick), Reel 3 (Mic Task), Reel 4 (Game)
             for(let i=0; i < 300; i++) {
                 if(i > 0 && i % 4 === 3) {
                     final.push({
@@ -277,7 +277,6 @@
                         color: "#ff0055"
                     });
                 } else if (i > 0 && i % 3 === 2) {
-                    // Force a "Say it" mic task every 3 reels
                     const word = EASY_WORDS[Math.floor(Math.random()*EASY_WORDS.length)];
                     final.push({v: word, type: "spell", color: "#FFAC1C"});
                 } else {
@@ -313,10 +312,12 @@
             loadV();
             if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = loadV;
             
-            if ('webkitSpeechRecognition' in window) {
-                state.rec = new webkitSpeechRecognition();
-                state.rec.continuous = true; 
-                state.rec.interimResults = true; 
+            // MIC UPDATE: Initialize specialized recognition object for faster response
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                state.rec = new SpeechRecognition();
+                state.rec.continuous = false; // "Not always on" - process in bursts
+                state.rec.interimResults = true; // "Fast" - evaluate before sentence ends
                 state.rec.lang = 'en-US';
             }
 
@@ -399,6 +400,9 @@
             const idx = Math.round(scrollTop / vh);
 
             if(idx !== state.idx) {
+                // MIC UPDATE: Stop any active listening when scrolling
+                stopMicInternal();
+                
                 state.timers.forEach(clearInterval);
                 state.timers = [];
                 state.audioRequestId++;
@@ -414,9 +418,9 @@
                 setTimeout(() => speak(getQuestionText(item), state.audioRequestId), 500);
                 if (item.type === "game") setTimeout(() => runGame(idx), 600);
                 
-                // Advanced Feature: Auto-start Mic for Mic Reels to make it faster
+                // MIC UPDATE: Auto-start for Mic reels but handle it cleaner
                 if (item.type === "spell") {
-                    setTimeout(() => startMic(idx, item.v, true), 1500);
+                    setTimeout(() => { if(state.idx === idx) startMic(idx, item.v, true); }, 1800);
                 }
             }
         }
@@ -487,46 +491,64 @@
             }
         }
 
+        // MIC UPDATE: Optimized Fast Recognition
         function startMic(idx, t, isAuto = false) {
             if (!state.rec || state.idx !== idx) return;
             const btn = document.getElementById(`mic-${idx}`);
             const container = document.getElementById(`mic-container-${idx}`);
-            if (!btn || btn.classList.contains('active')) return;
+            if (!btn || state.isMicListening) return;
 
+            state.isMicListening = true;
             btn.classList.add('active');
-            if(container) container.classList.add('active');
+            if(container) container.classList.add('active-visual');
             
             try { 
                 state.rec.start(); 
-            } catch(e) {} // Handle already started
+            } catch(e) { console.warn("Mic already active"); }
 
             state.rec.onresult = (e) => {
-                const heard = e.results[e.results.length - 1][0].transcript.toLowerCase();
-                const target = t.toLowerCase();
-                
-                // Advanced Fast Catch: detect substring match even in interim results
-                if (heard.includes(target)) {
-                    btn.classList.remove('active');
-                    if(container) container.classList.remove('active');
-                    state.rec.stop();
-                    updateScore(); 
-                    celebrate(innerWidth/2, innerHeight/2); 
-                    speak("Perfect!", state.audioRequestId);
-                    setTimeout(nxt, 1800);
+                // Loop through all results (interim and final) for "Immediate" evaluation
+                for (let i = e.resultIndex; i < e.results.length; ++i) {
+                    const heard = e.results[i][0].transcript.toLowerCase();
+                    const target = t.toLowerCase();
+                    
+                    // Fast check for word match
+                    if (heard.includes(target)) {
+                        stopMicInternal();
+                        updateScore(); 
+                        celebrate(innerWidth/2, innerHeight/2); 
+                        speak("Perfect!", state.audioRequestId);
+                        setTimeout(nxt, 1800);
+                        return; // Exit on match
+                    }
                 }
             };
 
             state.rec.onend = () => {
-                // Keep listening if we haven't finished the task yet
-                if (btn.classList.contains('active') && state.idx === idx) {
-                    try { state.rec.start(); } catch(e) {}
+                // If we haven't matched yet and still on this card, restart once to keep "listening"
+                // But only if we are still marked as listening
+                if (state.isMicListening && state.idx === idx) {
+                    try { state.rec.start(); } catch(err) { state.isMicListening = false; }
+                } else {
+                    state.isMicListening = false;
                 }
             };
             
-            state.rec.onerror = () => {
-                btn.classList.remove('active');
-                if(container) container.classList.remove('active');
+            state.rec.onerror = (e) => {
+                console.error("Mic Error:", e.error);
+                if (e.error !== 'no-speech') {
+                    stopMicInternal();
+                }
             };
+        }
+
+        function stopMicInternal() {
+            state.isMicListening = false;
+            if(state.rec) {
+                try { state.rec.stop(); } catch(e) {}
+            }
+            document.querySelectorAll('.mic-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('[id^="mic-container-"]').forEach(c => c.classList.remove('active-visual'));
         }
 
         function updateScore() {
